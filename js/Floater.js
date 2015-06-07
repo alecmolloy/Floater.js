@@ -1,9 +1,9 @@
 /*jslint browser: true, devel: true, passfail: false, eqeq: false, plusplus: true, sloppy: true, vars: true*/
-
 function Floater(fieldX, fieldY, anchors, lines, segments, relationships) {
-    this.fieldX = fieldX; // int
-    this.fieldY = fieldY; // int
-    this.anchors = anchors || 3; // int
+    this.fieldX = fieldX || window.innerWidth; // int
+    this.fieldY = fieldY || window.innerHeight; // int
+
+    anchors = anchors || this.generateRandomAnchors(3, this.fieldX, this.fieldY); // 2D array of int coördinates
     lines = lines || ['01', '12']; // Array of strings: line anchor pairs
     segments = segments || [20]; // Array of ints: segment numbers per line
     relationships = relationships || ['01']; // Array of strings: related lines
@@ -13,13 +13,12 @@ function Floater(fieldX, fieldY, anchors, lines, segments, relationships) {
     this.relationshipArray = [];
     this.connectorArray = [[]];
 
-    // Anchor
-    for (var i = 0; i < this.anchors; i++) {
-        var anchorX = Math.round(Math.random() * this.fieldX);
-        var anchorY = Math.round(Math.random() * this.fieldY);
+    // Generate anchor array
+    for (var i = 0; i < anchors.length; i++) {
+        var anchorX = anchors[i[0]];
+        var anchorY = anchors[i[1]];
         this.anchorArray[i] = new this.Anchor(anchorX, anchorY, i);
     }
-
 
     // Line
     for (var i = 0; i < lines.length; i++) {
@@ -57,8 +56,8 @@ function Floater(fieldX, fieldY, anchors, lines, segments, relationships) {
     console.log(this.connectorArray);
 }
 
-Floater.prototype.Anchor = function (x, y, anchorNum) {
-    this.anchorNum = anchorNum;
+Floater.prototype.Anchor = function (x, y, anchorIndex) {
+    this.anchorIndex = anchorIndex;
     this.x = x;
     this.y = y;
 };
@@ -72,4 +71,15 @@ Floater.prototype.Line = function (anchor1, anchor2, segments) {
 Floater.prototype.Connector = function (point1, point2) {
     this.point1 = point1; // Point
     this.point2 = point2; // Point
+};
+
+Floater.prototype.generateRandomAnchors = function (n, fieldX, fieldY) {
+    var anchors = [];
+    for (var i = 0; i < n; i++){
+        var x = Math.round(Math.random() * fieldX);
+        var y = Math.round(Math.random() * fieldY);
+        anchors.push([x,y]);
+        console.log(anchors);
+    }
+    return anchors;
 };
