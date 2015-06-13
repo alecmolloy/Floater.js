@@ -15,52 +15,56 @@ In the example, you can see the three anchor points. From those anchor points, t
 What's cool about Floaters? They are drawn with only straight lines, but the more segments drawn, the more it looks like a parabolic curve. Pretty cool, yeah?
 
 */
+var i, j;
 
 function Floater(fieldX, fieldY, anchors, lines, segments, relationships) {
     this.fieldX = fieldX || window.innerWidth; // int
     this.fieldY = fieldY || window.innerHeight; // int
 
-    anchors = anchors || this.generateRandomAnchors(3, this.fieldX, this.fieldY); // 2D array of int coördinates
+    anchors = anchors || Floater.generateRandomAnchors(3, this.fieldX, this.fieldY); // 2D array of int coördinates
     lines = lines || ['01', '12']; // Array of strings: line anchor pairs
-    segments = segments || [20]; // Array of ints: segment numbers per line
     relationships = relationships || ['01']; // Array of strings: related lines
-
+    this.segments = segments || [10]; // Array of ints: segment numbers per line
     this.anchorArray = [];
     this.lineArray = [];
     this.relationshipArray = [];
-    this.connectorArray = [[]];
 
     // Generate anchor array
-    for (var i = 0; i < anchors.length; i++) {
-        var anchorX = anchors[i[0]];
-        var anchorY = anchors[i[1]];
-        this.anchorArray[i] = new this.Anchor(anchorX, anchorY, i);
+    for (i = 0; i < anchors.length; i++) {
+        this.anchorArray[i] = new this.Anchor(anchors[i].x, anchors[i].y, i);
     }
 
     // Line
-    for (var i = 0; i < lines.length; i++) {
+    for (i = 0; i < lines.length; i++) {
         var anchor1 = this.anchorArray[lines[i].slice(0, 1)];
         var anchor2 = this.anchorArray[lines[i].slice(1, 2)];
-        this.lineArray[i] = new this.Line(anchor1, anchor2, segments[i]);
+        this.lineArray[i] = new this.Line(anchor1, anchor2, i);
     }
 
-    // Relationships
-    for (var i = 0; i < relationships.length; i++) {
-        var line1 = this.lineArray[relationships[i].slice(0, 1).charCodeAt() - 48];
-        var line2 = this.lineArray[relationships[i].slice(1, 2).charCodeAt() - 48];
-        this.relationshipArray[i] = [line1, line2];
+    // Create relationships
+    for (i = 0; i < relationships.length; i++) {
+        var line1 = this.lineArray[relationships[i].slice(0, 1).charCodeAt() - 48]; // Store first line
+        var line2 = this.lineArray[relationships[i].slice(1, 2).charCodeAt() - 48]; // Store second line
+        this.relationshipArray[i] = { // Create relationship Array
+            line1: line1,
+            line2: line2
+        };
+        for (var line = 1; line <= 2; line++) { // allows us to access each line's key using bracket notation
+            var lineKey = 'line' + line;
 
-        for (var j = 0; j < relationships.length; j++) {
-            var x1 = this.lineArray[i].anchor1.x;
-            var y1 = this.lineArray[i].anchor1.y;
-            var x2 = this.lineArray[i].anchor2.x;
-            var y2 = this.lineArray[i].anchor2.y;
+            var lineX1 = this.relationshipArray[i][lineKey].anchor1.x;
+            var lineY1 = this.relationshipArray[i][lineKey].anchor1.y;
+            var lineX2 = this.relationshipArray[i][lineKey].anchor2.x;
+            var lineY2 = this.relationshipArray[i][lineKey].anchor2.y;
 
-            var connectorX = ((x2 - x1) / segments[i]) * j + x1;
-            var connectorY = ((y2 - y1) / segments[i]) * j + y1;
-
-            var connector = new this.Connector(connectorX, connectorY);
-            this.connectorArray[i][j] = connector;
+            if (this.relationshipArray[i][lineKey].connectorPoints.length === 0) {
+                for (j = 0; j <= this.segments[i]; j++) {
+                    var connectorX = ((lineX2 - lineX1) / this.segments[i]) * j + lineX1;
+                    var connectorY = ((lineY2 - lineY1) / this.segments[i]) * j + lineY1;
+                    var connector = new this.ConnectorPoint(connectorX, connectorY);
+                    this.relationshipArray[i][lineKey].connectorPoints.push(connector);
+                }
+            }
         }
     }
     console.log('Anchor array: ');
@@ -69,8 +73,6 @@ function Floater(fieldX, fieldY, anchors, lines, segments, relationships) {
     console.log(this.lineArray);
     console.log("Relationship: ");
     console.log(this.relationshipArray);
-    console.log("Connector: ");
-    console.log(this.connectorArray);
 }
 
 Floater.prototype.Anchor = function (x, y, anchorIndex) {
@@ -79,24 +81,30 @@ Floater.prototype.Anchor = function (x, y, anchorIndex) {
     this.y = y;
 };
 
-Floater.prototype.Line = function (anchor1, anchor2, segments) {
+Floater.prototype.Line = function (anchor1, anchor2, index) {
+    this.index = index;
     this.anchor1 = anchor1; // Anchor
     this.anchor2 = anchor2; // Anchor
-    this.segments = segments || 20; // int
+    this.connectorPoints = [];
 };
 
-Floater.prototype.Connector = function (point1, point2) {
-    this.point1 = point1; // Point
-    this.point2 = point2; // Point
+Floater.prototype.ConnectorPoint = function (x, y) {
+    this.x = x; // Point
+    this.y = y; // Point
 };
 
-Floater.prototype.generateRandomAnchors = function (n, fieldX, fieldY) {
-    var anchors = [];
-    for (var i = 0; i < n; i++){
+Floater.generateRandomAnchors = function (n, fieldX, fieldY) {
+    fieldX = fieldX || window.innerWidth; // int
+    fieldY = fieldY || window.innerHeight; // int
+
+    var randomAnchors = [];
+    for (i = 0; i < n; i++) {
         var x = Math.round(Math.random() * fieldX);
         var y = Math.round(Math.random() * fieldY);
-        anchors.push([x,y]);
-        console.log(anchors);
+        randomAnchors.push({
+            x: x,
+            y: y
+        });
     }
-    return anchors;
+    return randomAnchors;
 };
