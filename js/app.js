@@ -1,44 +1,75 @@
-/*global THREE, Coordinates, document, window*/
+/*global THREE, THREEx, Floater */
+/*jslint browser: true, devel: true, passfail: false, eqeq: false, plusplus: true, sloppy: true, vars: true*/
 
 var camera, scene, renderer, windowResize;
-var canvasWidth, canvasHeight, canvasRatio;
+var canvasWidth, canvasHeight, canvasRatio, dpr;
+var originX, originY;
 var cameraControls, effectController;
 var clock = new THREE.Clock();
-var anchorA, anchorB, anchorC;
-var points = [];
-var lineMesh, planeMesh;
+var floater;
+var lines = [],
+    connectors = [],
+    planeMesh;
+var i, j;
 
 // Create the field of points
-function generateField() {
-    // Initialise points
-    anchorA = new THREE.Vector3(Math.random() * canvasWidth - (canvasWidth / 2), 0, Math.random() * canvasHeight - (canvasHeight / 2));
-    anchorB = new THREE.Vector3(Math.random() * canvasWidth - (canvasWidth / 2), 0, Math.random() * canvasHeight - (canvasHeight / 2));
-    anchorC = new THREE.Vector3(Math.random() * canvasWidth - (canvasWidth / 2), 0, Math.random() * canvasHeight - (canvasHeight / 2));
-}
+
 
 function fillScene() {
     scene = new THREE.Scene();
+    floater = new Floater(canvasWidth, canvasHeight, Floater.generateRandomAnchors(4), ['01', '23'], [100, 100], ['01']);
+    //    floater = new Floater();
 
     // Lights
     var ambientLight = new THREE.AmbientLight(0x333333);
     scene.add(ambientLight);
 
-    // Line
-    var lineGeometry = new THREE.Geometry();
-    generateField();
-    lineGeometry.vertices.push(anchorA);
-    lineGeometry.vertices.push(anchorB);
-    lineGeometry.vertices.push(anchorC);
-
     var lineMaterial = new THREE.LineBasicMaterial({
         color: 0x0080ff
     });
 
-    lineMesh = new THREE.Line(lineGeometry, lineMaterial);
+    // Draw Lines
+    for (i = 0; i < floater.lineArray.length; i++) {
+        var lineGeometry = new THREE.Geometry();
 
-    scene.add(lineMesh);
+        // Create vectors for points 1 and 2
+        var anchor1X = originX + floater.lineArray[i].anchor1.x;
+        var anchor1Y = originY + floater.lineArray[i].anchor1.y;
+        var anchor1 = new THREE.Vector3(anchor1X, 0, anchor1Y);
+        var anchor2X = originX + floater.lineArray[i].anchor2.x;
+        var anchor2Y = originY + floater.lineArray[i].anchor2.y;
+        var anchor2 = new THREE.Vector3(anchor2X, 0, anchor2Y);
 
-    console.log(lineMesh);
+        lineGeometry.vertices.push(anchor1);
+        lineGeometry.vertices.push(anchor2);
+
+        var lineMesh = new THREE.Line(lineGeometry, lineMaterial);
+        lines.push(lineMesh);
+        scene.add(lines[i]);
+    }
+
+
+    // Draw connectors
+    for (i = 0; i < floater.relationshipArray.length; i++) {
+        // Create vectors for each segment point
+        for (j = 0; j < floater.relationshipArray[i].line1.connectorPoints.length; j++) {
+            var connectorX1 = originX + floater.relationshipArray[i].line1.connectorPoints[j].x;
+            var connectorY1 = originY + floater.relationshipArray[i].line1.connectorPoints[j].y;
+            var connector1 = new THREE.Vector3(connectorX1, 0, connectorY1);
+
+            var connectorX2 = originX + floater.relationshipArray[i].line2.connectorPoints[j].x;
+            var connectorY2 = originY + floater.relationshipArray[i].line2.connectorPoints[j].y;
+            var connector2 = new THREE.Vector3(connectorX2, 0, connectorY2);
+
+            var connectorGeometry = new THREE.Geometry();
+            connectorGeometry.vertices.push(connector1);
+            connectorGeometry.vertices.push(connector2);
+
+            var connectorMesh = new THREE.Line(connectorGeometry, lineMaterial);
+            connectors.push(connectorMesh);
+            scene.add(connectors[j]);
+        }
+    }
 
     // Screen
     var planeGeometry = new THREE.PlaneBufferGeometry(canvasWidth, canvasHeight);
@@ -61,7 +92,10 @@ function init() {
     canvasWidth = window.innerWidth;
     canvasHeight = window.innerHeight;
     canvasRatio = canvasWidth / canvasHeight;
-    dpr = window.devicePixelRatio ? window.devicePixelRatio : 1;
+    dpr = window.devicePixelRatio || 1;
+
+    originX = -canvasWidth / 2;
+    originY = -canvasHeight / 2;
 
     // Renderer
     renderer = new THREE.WebGLRenderer({
@@ -69,9 +103,7 @@ function init() {
     });
     renderer.gammaInput = true;
     renderer.gammaOutput = true;
-    renderer.setPixelRatio(dpr)
-    renderer.setSize(canvasWidth, canvasHeight);
-    renderer.setPixelRatio(dpr)
+    renderer.setPixelRatio(dpr);
     renderer.setSize(canvasWidth, canvasHeight);
     renderer.setClearColor(0xffffff, 1);
 
@@ -97,25 +129,16 @@ function addToDOM() {
     container.appendChild(renderer.domElement);
 }
 
-function animate() {
-    window.requestAnimationFrame(animate);
-
-    // Move points
-    lineMesh.geometry.verticesNeedUpdate = true;
-    lineMesh.geometry.vertices.forEach(function (vertice) {
-        vertice.y = Math.sin(clock.elapsedTime) * 10 + 10;
-        vertice.x += Math.sin(clock.elapsedTime/2) / 10;
-        vertice.z += Math.sin(clock.elapsedTime/2) / 10;
-    });
-
-    render();
-}
-
 function render() {
     var delta = clock.getDelta();
     cameraControls.update(delta);
 
     renderer.render(scene, camera);
+}
+
+function animate() {
+    window.requestAnimationFrame(animate);
+
 }
 
 
