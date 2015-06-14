@@ -17,8 +17,34 @@ var i, j;
 
 function fillScene() {
     scene = new THREE.Scene();
-    floater = new Floater(canvasWidth, canvasHeight, Floater.generateRandomAnchors(4), ['01', '23'], [100, 100], ['01']);
-    //    floater = new Floater();
+
+
+    // Makes a square, four anchor points with four lines
+    floater = new Floater({
+        fieldWidth: canvasWidth,
+        fieldHeight: canvasHeight,
+        anchors: 4,
+        linesBetween:           [   '01',  '12',   '23',   '30' ],
+        segments:               [   100,   100,    100,    100  ],
+        relationshipsBetween:   [   '01',  '12',   '23',   '30' ]
+    })
+
+
+    /*
+    // Makes an incomplete triangle, three anchor points with two lines
+    floater = new Floater({
+        fieldWidth: canvasWidth,
+        fieldHeight: canvasHeight,
+        anchors: 3,
+        linesBetween:           [   '01',  '12' ],
+        segments:               [   25          ],
+        relationshipsBetween:   [   '01'        ]
+    })
+    */
+
+    floater.relationshipArray.forEach(function () {
+        connectors.push([]);
+    });
 
     // Lights
     var ambientLight = new THREE.AmbientLight(0x333333);
@@ -51,23 +77,32 @@ function fillScene() {
 
     // Draw connectors
     for (i = 0; i < floater.relationshipArray.length; i++) {
+        console.log('drawing connector' + i);
         // Create vectors for each segment point
         for (j = 0; j < floater.relationshipArray[i].line1.connectorPoints.length; j++) {
+            // Access line 1's connector point coördinates and store them in a vertice
             var connectorX1 = originX + floater.relationshipArray[i].line1.connectorPoints[j].x;
             var connectorY1 = originY + floater.relationshipArray[i].line1.connectorPoints[j].y;
             var connector1 = new THREE.Vector3(connectorX1, 0, connectorY1);
 
+            // Access line 2's connector point coördinates and store them in a vertice
             var connectorX2 = originX + floater.relationshipArray[i].line2.connectorPoints[j].x;
             var connectorY2 = originY + floater.relationshipArray[i].line2.connectorPoints[j].y;
             var connector2 = new THREE.Vector3(connectorX2, 0, connectorY2);
 
+            // Create a geometry and add the two created vertices
             var connectorGeometry = new THREE.Geometry();
             connectorGeometry.vertices.push(connector1);
             connectorGeometry.vertices.push(connector2);
 
+            // Create a mesh out of the geometry and standard line material
             var connectorMesh = new THREE.Line(connectorGeometry, lineMaterial);
-            connectors.push(connectorMesh);
-            scene.add(connectors[j]);
+
+            // Add the mesh to the connectors array
+            connectors[i].push(connectorMesh);
+
+            // Add the connector it to the scene, times the index by 1 + i because we are pushing in values to the arry in a nested loop
+            scene.add(connectors[i][j]);
         }
     }
 
@@ -138,7 +173,7 @@ function render() {
 
 function animate() {
     window.requestAnimationFrame(animate);
-
+    render();
 }
 
 
