@@ -3,6 +3,7 @@
 Right now I have a structure that creates a static floater using THREE.js. What I want is an interactive music player experience with individual scenes for every song.
 
 ## Goals
+0. ~~Add anchor, line, and relationship creation / destruction functionality~~
 1. Get floater to animate
 2. Get it to float around screen, bumping into walls
 3. Basic Web Audio API integration
@@ -14,7 +15,7 @@ Right now I have a structure that creates a static floater using THREE.js. What 
 8. Figure out how users can interact further with this
 
 ## Floater.js
-1. More discrete functions and properties. Each anchor, line, connector, relationship needs to have an updater
+1. ~~More discrete functions and properties. Each anchor, line, connector, relationship needs to have an updater~~
 2. Animation handling with vectors for each anchor point
 3. Support for walls
 4. Handle empty config properties
