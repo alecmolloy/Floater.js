@@ -192,15 +192,12 @@ Floater.prototype.createRelationship = function (self, line1, line2) {
     for (var line = 1; line <= 2; line++) { // allows us to access each line's key using bracket notation
         var lineKey = 'line' + line;
 
-        console.log(i);
-        console.log(self.relationshipArray);
         var lineX1 = self.relationshipArray[i][lineKey].anchor1.x;
         var lineY1 = self.relationshipArray[i][lineKey].anchor1.y;
         var lineX2 = self.relationshipArray[i][lineKey].anchor2.x;
         var lineY2 = self.relationshipArray[i][lineKey].anchor2.y;
 
         if (self.relationshipArray[i][lineKey].connectorPoints.length === 0) {
-            console.log(self);
             for (var j = 0; j <= self.segments[i]; j++) {
                 var connectorX = ((lineX2 - lineX1) / self.segments[i]) * j + lineX1;
                 var connectorY = ((lineY2 - lineY1) / self.segments[i]) * j + lineY1;
