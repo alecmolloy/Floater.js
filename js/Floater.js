@@ -80,9 +80,22 @@ Floater.prototype.Anchor = function (x, y, index, vector) {
  *     @param {Number[]} self.vector The vector for the anchor point. The anchor point will be translated in this direction.
  */
 
+Floater.prototype.animateAnchors = function (self) {
+    for (var i = 0; i < self.anchors.length; i++) {
+        self.anchors[i].updatePosition(self.anchors[i]);
+    }
+    self.updateSegments(self);
+}
+
+/*
+ *    Updates anchor point positions given a vector
+ *    @param {Object} self The parent Anchor object
+ *     @param {Number[]} self.vector The vector for the anchor point. The anchor point will be translated in this direction.
+ */
+
 Floater.prototype.Anchor.prototype.updatePosition = function (self) {
-    self.x
-    self.vector
+    self.x += self.vector.x;
+    self.y += self.vector.y;
 }
 
 /*
@@ -121,11 +134,16 @@ Floater.prototype.createAnchor = function (self) {
     var y = Math.round(Math.random() * self.fieldHeight);
 
     // Create random 2D vector
-    var vector = [];
-    for (var i = 0; i < 2; i++) {
+    var vector = {
+        x: 0,
+        y: 0
+    };
+
+    for (key in vector) {
         var sign = Math.random() > .5 ? 1 : -1;
-        vector.push(parseFloat((Math.random() * sign).toPrecision(2)));
+        vector[key] = parseFloat((Math.random() * sign).toPrecision(2));
     }
+
 
     // Create Anchor object from (x, y) coördinates
     var anchor = new self.Anchor(x, y, self.anchors.length, vector);
@@ -206,7 +224,7 @@ Floater.prototype.createRelationship = function (self, line1, line2) {
     });
 
     // Create Segments
-    self.updateSegments(self, i, self.relationships[i].segments);
+    self.createSegments(self, i, self.relationships[i].segments);
     return self.relationships[i];
 };
 
@@ -237,33 +255,47 @@ Floater.prototype.checkRelationships = function (self, destroyedLine) {
 };
 
 /*
- *  Updates segment endpoint positions, and also how many segments there are for a given relationship
+ * TODODODODODO
+ *  Creates segment endpoint positions, and also how many segments there are for a given relationship
  *  @param {Object} self The parent floater object
- *    @param {Number} index The index for the relationship whose segments you want to update
- *    @param {Number} [segments=self.relationships[index].segments] The number of segments you want to update the relationship to have
+ *  @param {Number} index The index for the relationship whose segments you want to update
+ *  @param {Number} [segments=self.relationships[index].segments] The number of segments you want to update the relationship to have
  */
 
-Floater.prototype.updateSegments = function (self, index, segments) {
+Floater.prototype.createSegments = function (self, index, segments) {
     var newSegments = segments || self.relationships[index].segments;
 
     for (var line = 1; line <= 2; line++) { // allows us to access each line's key using bracket notation
         var lineKey = 'line' + line;
-
-        var lineX1 = self.relationships[index][lineKey].anchor1.x;
-        var lineY1 = self.relationships[index][lineKey].anchor1.y;
-        var lineX2 = self.relationships[index][lineKey].anchor2.x;
-        var lineY2 = self.relationships[index][lineKey].anchor2.y;
-
         if (self.relationships[index][lineKey].connectorPoints.length === 0) {
             for (var j = 0; j <= self.segments[index]; j++) {
-                var connectorX = ((lineX2 - lineX1) / self.segments[index]) * j + lineX1;
-                var connectorY = ((lineY2 - lineY1) / self.segments[index]) * j + lineY1;
-                var connector = new self.ConnectorPoint(connectorX, connectorY);
+                var connector = new self.ConnectorPoint(0, 0);
                 self.relationships[index][lineKey].connectorPoints.push(connector);
             }
         }
     }
+    self.updateSegments(self);
+    return self.segments;
+};
 
+Floater.prototype.updateSegments = function (self) {
+    for (var i = 0; i < self.relationships.length; i++) {
+        for (var line = 1; line <= 2; line++) { // allows us to access each line's key using bracket notation
+            var lineKey = 'line' + line;
+
+            var lineX1 = self.relationships[i][lineKey].anchor1.x;
+            var lineY1 = self.relationships[i][lineKey].anchor1.y;
+            var lineX2 = self.relationships[i][lineKey].anchor2.x;
+            var lineY2 = self.relationships[i][lineKey].anchor2.y;
+
+            for (var j = 0; j <= self.segments[i]; j++) {
+                var connectorX = ((lineX2 - lineX1) / self.segments[i]) * j + lineX1;
+                var connectorY = ((lineY2 - lineY1) / self.segments[i]) * j + lineY1;
+                self.relationships[i][lineKey].connectorPoints[j].x = connectorX;
+                self.relationships[i][lineKey].connectorPoints[j].y = connectorY;
+            }
+        }
+    }
     return self.segments;
 };
 

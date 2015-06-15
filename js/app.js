@@ -7,95 +7,35 @@ var originX, originY;
 var cameraControls, effectController;
 var clock = new THREE.Clock();
 var floater;
-var lines = [],
-    connectors = [],
-    planeMesh;
-var i, j;
+var threeObject;
+var planeMesh;
 
 function fillScene() {
     scene = new THREE.Scene();
 
-//     Makes a square, four anchor points with four lines
-        floater = new Floater({
-            anchors: 4,
-            fieldHeight: canvasHeight,
-            fieldWidth: canvasWidth,
-            linesBetween: ['01', '12', '23', '30'],
-            segments: [100, 100, 100, 100],
-            relationshipsBetween: ['01', '12', '23', '30']
-        })
 //    floater = new Floater({
 //        fieldWidth: canvasWidth,
 //        fieldHeight: canvasHeight,
 //        anchors: 3,
-//        linesBetween: ['01', '12'],
-//        segments: [10],
-//        relationshipsBetween: ['01']
+//        linesBetween:           [   '01',  '12' ],
+//        segments:               [   10          ],
+//        relationshipsBetween:   [   '01'        ]
 //    })
 
-
-    // Set up the floater connectors 2D array
-    floater.relationships.forEach(function () {
-        connectors.push([]);
+    floater = new Floater({
+        anchors: 4,
+        fieldHeight: canvasHeight,
+        fieldWidth: canvasWidth,
+        linesBetween: ['01', '12', '23', '30'],
+        segments: [200, 200, 200, 200],
+        relationshipsBetween: ['01', '12', '23', '30']
     });
+
+    threeObject = new Floater.ThreeObject(floater);
 
     // Lights
     var ambientLight = new THREE.AmbientLight(0x333333);
     scene.add(ambientLight);
-
-    var lineMaterial = new THREE.LineBasicMaterial({
-        color: 0x0080ff
-    });
-
-    // Draw Lines
-    for (i = 0; i < floater.lines.length; i++) {
-        var lineGeometry = new THREE.Geometry();
-
-        // Create vectors for points 1 and 2
-        var anchor1X = originX + floater.lines[i].anchor1.x;
-        var anchor1Y = originY + floater.lines[i].anchor1.y;
-        var anchor1 = new THREE.Vector3(anchor1X, 0, anchor1Y);
-        var anchor2X = originX + floater.lines[i].anchor2.x;
-        var anchor2Y = originY + floater.lines[i].anchor2.y;
-        var anchor2 = new THREE.Vector3(anchor2X, 0, anchor2Y);
-
-        lineGeometry.vertices.push(anchor1);
-        lineGeometry.vertices.push(anchor2);
-
-        var lineMesh = new THREE.Line(lineGeometry, lineMaterial);
-        lines.push(lineMesh);
-        scene.add(lines[i]);
-    }
-
-    // Draw connectors
-    for (i = 0; i < floater.relationships.length; i++) {
-        // Create vectors for each segment point
-        for (j = 0; j < floater.relationships[i].line1.connectorPoints.length; j++) {
-            // Access line 1's connector point coördinates and store them in a vertice
-            var connectorX1 = originX + floater.relationships[i].line1.connectorPoints[j].x;
-            var connectorY1 = originY + floater.relationships[i].line1.connectorPoints[j].y;
-            var connector1 = new THREE.Vector3(connectorX1, 0, connectorY1);
-
-            // Access line 2's connector point coördinates and store them in a vertice
-            var connectorX2 = originX + floater.relationships[i].line2.connectorPoints[j].x;
-            var connectorY2 = originY + floater.relationships[i].line2.connectorPoints[j].y;
-            var connector2 = new THREE.Vector3(connectorX2, 0, connectorY2);
-
-            // Create a geometry and add the two created vertices
-            var connectorGeometry = new THREE.Geometry();
-            connectorGeometry.vertices.push(connector1);
-            connectorGeometry.vertices.push(connector2);
-
-            // Create a mesh out of the geometry and standard line material
-            var connectorMesh = new THREE.Line(connectorGeometry, lineMaterial);
-
-            // Add the mesh to the connectors array
-            connectors[i].push(connectorMesh);
-
-            // Add the connector it to the scene, times the index by 1 + i because we are pushing in values to the arry in a nested loop
-            scene.add(connectors[i][j]);
-        }
-    }
 
     // Screen
     var planeGeometry = new THREE.PlaneBufferGeometry(canvasWidth, canvasHeight);
@@ -164,6 +104,9 @@ function render() {
 
 function animate() {
     window.requestAnimationFrame(animate);
+    floater.animateAnchors(floater);
+    threeObject.updateLines(threeObject);
+    threeObject.updateConnectors(threeObject);
     render();
 }
 
