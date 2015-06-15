@@ -27,7 +27,7 @@ function fillScene() {
         fieldHeight: canvasHeight,
         fieldWidth: canvasWidth,
         linesBetween: ['01', '12', '23', '30'],
-        segments: [200, 200, 200, 200],
+        segments: [100, 100, 100, 100],
         relationshipsBetween: ['01', '12', '23', '30']
     });
 
