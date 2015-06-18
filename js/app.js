@@ -16,6 +16,7 @@ function fillScene() {
 //    floater = new Floater({
 //        fieldWidth: canvasWidth,
 //        fieldHeight: canvasHeight,
+//        walls: true,
 //        anchors: 3,
 //        linesBetween:           [   '01',  '12' ],
 //        segments:               [   10          ],
@@ -26,8 +27,9 @@ function fillScene() {
         anchors: 4,
         fieldHeight: canvasHeight,
         fieldWidth: canvasWidth,
+        walls: true,
         linesBetween: ['01', '12', '23', '30'],
-        segments: [100, 100, 100, 100],
+        segments: [70, 70, 70, 70],
         relationshipsBetween: ['01', '12', '23', '30']
     });
 
