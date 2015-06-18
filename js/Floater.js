@@ -19,15 +19,16 @@ Floaters are drawn with only straight lines, but the more segments drawn, the mo
 /**
  * Floater
  *
- * @class Floater
- * @constructor
- * @param config {Object}
- * @param config.fieldWidth {Number}
- * @param config.fieldHeight {Number}
- * @param config.anchors {Number}
- * @param config.linesBetween {String[]}
- * @param config.segments {Number[]}
- * @param config.relationshipsBetween {String[]}
+ *    @class Floater
+ *    @constructor
+ *    @param config {Object}
+ *    @param config.fieldWidth {Number}
+ *    @param config.fieldHeight {Number}
+ *    @param config.anchors {Number}
+ *    @param config.linesBetween {String[]}
+ *    @param config.segments {Number[]}
+ *    @param config.relationshipsBetween {String[]}
+ *    @param config.walls {Boolean}
  */
 
 
@@ -35,6 +36,7 @@ function Floater(config) {
     this.fieldWidth = config.fieldWidth || window.innerWidth; // int
     this.fieldHeight = config.fieldHeight || window.innerHeight; // int
     this.segments = config.segments;
+    this.walls = config.walls || true;
 
     // Generate anchor array
     this.anchors = [];
@@ -60,11 +62,11 @@ function Floater(config) {
 }
 
 /*
- *     Anchor constructor
- *     @param {Object} x x coordinate for anchor point
- *     @param {Object} y y coordinate for anchor point
- *     @param {Number} index
- *     @param {Number} vector The vector for the anchor point's movement
+ *    Anchor constructor
+ *    @param {Object} x x coordinate for anchor point
+ *    @param {Object} y y coordinate for anchor point
+ *    @param {Number} index
+ *    @param {Object} vector The (x, y) vector for the anchor point's movement
  */
 
 Floater.prototype.Anchor = function (x, y, index, vector) {
@@ -75,34 +77,42 @@ Floater.prototype.Anchor = function (x, y, index, vector) {
 };
 
 /*
- *    Updates anchor point positions given a vector
- *    @param {Object} self The parent Anchor object
- *     @param {Number[]} self.vector The vector for the anchor point. The anchor point will be translated in this direction.
+ *    Animates all anchor point positions
+ *    @param {Object} self The parent Floater object
  */
 
 Floater.prototype.animateAnchors = function (self) {
     for (var i = 0; i < self.anchors.length; i++) {
-        self.anchors[i].updatePosition(self.anchors[i]);
+        self.updateAnchorPosition(self, self.anchors[i]);
     }
     self.updateSegments(self);
 }
 
 /*
- *    Updates anchor point positions given a vector
- *    @param {Object} self The parent Anchor object
- *     @param {Number[]} self.vector The vector for the anchor point. The anchor point will be translated in this direction.
+ *    Updates an anchor point position on their vectors
+ *    @param {Object} self The parent Floater object
+ *    @param {Object} anchor The anchor point which will be translated in the direction and magnitude of their vector.
  */
 
-Floater.prototype.Anchor.prototype.updatePosition = function (self) {
-    self.x += self.vector.x;
-    self.y += self.vector.y;
+Floater.prototype.updateAnchorPosition = function (self, anchor) {
+    if (self.walls) {
+        console.log(anchor.vector.x + ',' + self.fieldWidth);
+        if (anchor.x >= self.fieldWidth || anchor.x <= 0) {
+            anchor.vector.x *= -1; // Reverse the sign so that it bounces and goes the other way
+        }
+        if (anchor.y >= self.fieldHeight || anchor.y <= 0) {
+            anchor.vector.y *= -1; // Reverse the sign so that it bounces and goes the other way
+        }
+    }
+    anchor.x += anchor.vector.x;
+    anchor.y += anchor.vector.y;
 }
 
 /*
- *     Line constructor
- *     @param {Object} anchor1 first anchor point for line
- *     @param {Object} anchor2 second anchor point for line
- *     @param {Number} index
+ *    Line constructor
+ *    @param {Object} anchor1 first anchor point for line
+ *    @param {Object} anchor2 second anchor point for line
+ *    @param {Number} index
  */
 
 Floater.prototype.Line = function (anchor1, anchor2, index) {
@@ -113,9 +123,9 @@ Floater.prototype.Line = function (anchor1, anchor2, index) {
 };
 
 /*
- *     Connector Point constructor
- *     @param {Number} x x coordinate for connector point
- *     @param {Number} y y coordinate for connector point
+ *    Connector Point constructor
+ *    @param {Number} x x coordinate for connector point
+ *    @param {Number} y y coordinate for connector point
  */
 
 Floater.prototype.ConnectorPoint = function (x, y) {
@@ -124,8 +134,8 @@ Floater.prototype.ConnectorPoint = function (x, y) {
 };
 
 /*
- *   Creates Anchor
- *   @param {Object} self The parent floater object
+ *    Creates Anchor
+ *    @param {Object} self The parent floater object
  */
 
 Floater.prototype.createAnchor = function (self) {
@@ -153,9 +163,9 @@ Floater.prototype.createAnchor = function (self) {
 }
 
 /*
- *   Destroys Anchor
- *   @param {Object} self The parent floater object
- *   @param {Number} [index=self.anchors.length] The index of the anchor to be destroyed. Defaults to last anchor point in anchor array.
+ *    Destroys Anchor
+ *    @param {Object} self The parent floater object
+ *    @param {Number} [index=self.anchors.length] The index of the anchor to be destroyed. Defaults to last anchor point in anchor array.
  */
 
 Floater.prototype.destroyAnchor = function (self, index) {
@@ -167,10 +177,10 @@ Floater.prototype.destroyAnchor = function (self, index) {
 };
 
 /*
- *   Creates Line
- *   @param {Object} self The parent floater object
- *   @param {Object} anchor1 The first anchor point with which to create a line
- *   @param {Object} anchor2 The second anchor point with which to create a line
+ *    Creates Line
+ *    @param {Object} self The parent floater object
+ *    @param {Object} anchor1 The first anchor point with which to create a line
+ *    @param {Object} anchor2 The second anchor point with which to create a line
  */
 
 Floater.prototype.createLine = function (self, anchor1, anchor2) {
@@ -179,9 +189,9 @@ Floater.prototype.createLine = function (self, anchor1, anchor2) {
 };
 
 /*
- *   Destroys Line
- *   @param {Object} self The parent floater object
- *   @param {Number} [index=self.lines.length] The index of the line to be destroyed. Defaults to last line in line array.
+ *    Destroys Line
+ *    @param {Object} self The parent floater object
+ *    @param {Number} [index=self.lines.length] The index of the line to be destroyed. Defaults to last line in line array.
  */
 
 Floater.prototype.destroyLine = function (self, index) {
@@ -193,9 +203,9 @@ Floater.prototype.destroyLine = function (self, index) {
 };
 
 /*
- *   Check to see if there are lines affected by the removal of anchor points
- *   @param {Object} self The parent floater object
- *   @param {Object} destroyedAnchor A copy of an anchor point that has just been destroyed
+ *    Check to see if there are lines affected by the removal of anchor points
+ *    @param {Object} self The parent floater object
+ *    @param {Object} destroyedAnchor A copy of an anchor point that has just been destroyed
  */
 
 Floater.prototype.checkLines = function (self, destroyedAnchor) {
@@ -209,10 +219,10 @@ Floater.prototype.checkLines = function (self, destroyedAnchor) {
 };
 
 /*
- *   Creates a relationship
- *   @param {Object} self The parent floater object
- *   @param {Object} line1 The first line with which to create a relationship
- *   @param {Object} line2 The second line with which to create a relationship
+ *    Creates a relationship
+ *    @param {Object} self The parent floater object
+ *    @param {Object} line1 The first line with which to create a relationship
+ *    @param {Object} line2 The second line with which to create a relationship
  */
 
 Floater.prototype.createRelationship = function (self, line1, line2) {
@@ -229,9 +239,9 @@ Floater.prototype.createRelationship = function (self, line1, line2) {
 };
 
 /*
- *   Destroys Line
- *   @param {Object} self The parent floater object
- *   @param {Number} [index=self.lines.length] The index of the line to be destroyed. Defaults to last line in line array.
+ *    Destroys Line
+ *    @param {Object} self The parent floater object
+ *    @param {Number} [index=self.lines.length] The index of the line to be destroyed. Defaults to last line in line array.
  */
 
 Floater.prototype.destroyRelationship = function (self, index) {
@@ -240,9 +250,9 @@ Floater.prototype.destroyRelationship = function (self, index) {
 };
 
 /*
- *   Check to see if there are relationships affected by the removal of lines
- *   @param {Object} self The parent floater object
- *   @param {Object} destroyedLine A copy of a line that has just been destroyed
+ *    Check to see if there are relationships affected by the removal of lines
+ *    @param {Object} self The parent floater object
+ *    @param {Object} destroyedLine A copy of a line that has just been destroyed
  */
 
 Floater.prototype.checkRelationships = function (self, destroyedLine) {
@@ -300,7 +310,7 @@ Floater.prototype.updateSegments = function (self) {
 };
 
 /*
- *    Reports on the current status of the floater
+ *     Reports on the current status of the floater
  */
 
 Floater.prototype.report = function (self) {
