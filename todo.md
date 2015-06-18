@@ -23,7 +23,7 @@ Right now I have a structure that creates a static floater using THREE.js. What 
 5. Handle updates to anchors, lines, relationships, segments
 
 ## app.js
-1. Separate geometry creation and geometry positioning.
+1. ~~Separate geometry creation and geometry positioning.~~
 2. Use Web Audio API to manipulate vertices
 3. Support for colours / material changes
 4. Support for scenes
