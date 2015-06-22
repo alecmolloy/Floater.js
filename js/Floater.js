@@ -21,16 +21,15 @@ Floaters are drawn with only straight lines, but the more segments drawn, the mo
  *
  *    @class Floater
  *    @constructor
- *    @param config {Object}
- *    @param config.fieldWidth {Number}
- *    @param config.fieldHeight {Number}
- *    @param config.anchors {Number}
- *    @param config.linesBetween {String[]}
- *    @param config.segments {Number[]}
- *    @param config.relationshipsBetween {String[]}
- *    @param config.walls {Boolean}
+ *    @param {Object} config
+ *    @param {Number} config.fieldWidth
+ *    @param {Number} config.fieldHeight
+ *    @param {Number} config.anchors
+ *    @param {String[]} config.linesBetween
+ *    @param {Number[]} config.segments
+ *    @param {String[]} config.relationshipsBetween
+ *    @param {Boolean} config.walls
  */
-
 
 function Floater(config) {
     this.fieldWidth = config.fieldWidth || window.innerWidth; // int
@@ -96,7 +95,6 @@ Floater.prototype.animateAnchors = function (self) {
 
 Floater.prototype.updateAnchorPosition = function (self, anchor) {
     if (self.walls) {
-        console.log(anchor.vector.x + ',' + self.fieldWidth);
         if (anchor.x >= self.fieldWidth || anchor.x <= 0) {
             anchor.vector.x *= -1; // Reverse the sign so that it bounces and goes the other way
         }
