@@ -21,10 +21,11 @@ Right now I have a structure that creates a static floater using THREE.js. What 
 1. ~~More discrete functions and properties. Each anchor, line, connector, relationship needs to have an updater~~
 2. ~~Animation handling with vectors for each anchor point~~
 3. ~~Support for walls~~
-4. Responsive walls
-5. Manual control of anchors
-6. Handle empty config properties
-7. Handle updates to anchors, lines, relationships, segments
+4. Three dimensional floaters
+5. Responsive walls
+6. Manual control of anchors
+7. Handle empty config properties
+8. Handle updates to anchors, lines, relationships, segments
 
 ## app.js
 1. ~~Separate geometry creation and geometry positioning.~~
@@ -37,7 +38,7 @@ Right now I have a structure that creates a static floater using THREE.js. What 
 8. Integrate user interactions
 
 ## Visualiser.js
-1. Basic sound input
+1. ~Basic sound input~
 2. Manipulate anchor points z axis
 3. Manipulate lines
 
