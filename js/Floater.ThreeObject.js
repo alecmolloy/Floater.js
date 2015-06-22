@@ -48,6 +48,15 @@ Floater.ThreeObject.prototype.updateLines = function (self) {
     }
 }
 
+Floater.ThreeObject.prototype.microphoneInput = function (self, dataArray) {
+    for (i = 0; i < self.floaterGeometry.lines.length; i++) { // Iterate through all lines
+        for (j = 1; j <= 2; j++) { // Iterate through all vertices
+            self.lines.children[i].geometry.vertices[j - 1].y = dataArray[i * 2];
+        }
+    }
+}
+
+
 Floater.ThreeObject.prototype.createConnectors = function (self) {
     for (i = 0; i < self.floaterGeometry.relationships.length; i++) {
         // Create vectors for each segment point
