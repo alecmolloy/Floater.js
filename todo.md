@@ -9,27 +9,37 @@ Right now I have a structure that creates a static floater using THREE.js. What 
 3. Basic Web Audio API integration
 4. Support for guessing empty config properties
 5. GUI for creating floaters
-6. Handle updates to anchors, lines, relationships, segments
-7. Support for colours / material changes
-8. Support for scenes
-9. Integration with Selected Ambien Twerks
-10. Figure out how users can interact further with this
+6. Touch input
+7. Handle updates to anchors, lines, relationships, segments
+8. Responsivity
+9. Support for colours / material changes
+10. Support for scenes
+11. Integration with Selected Ambien Twerks
+12. Figure out how users can interact further with this
 
 ## Floater.js
 1. ~~More discrete functions and properties. Each anchor, line, connector, relationship needs to have an updater~~
 2. ~~Animation handling with vectors for each anchor point~~
 3. ~~Support for walls~~
-4. Handle empty config properties
-5. Handle updates to anchors, lines, relationships, segments
+4. Responsive walls
+5. Manual control of anchors
+6. Handle empty config properties
+7. Handle updates to anchors, lines, relationships, segments
 
 ## app.js
 1. ~~Separate geometry creation and geometry positioning.~~
 2. Use Web Audio API to manipulate vertices
-3. Support for colours / material changes
-4. Support for scenes
-5. Integrate with scenes.js
-6. Music player controls
-7. Integrate user interactions
+3. Touch input
+4. Support for colours / material changes
+5. Support for scenes
+6. Integrate with scenes.js
+7. Music player controls
+8. Integrate user interactions
+
+## Visualiser.js
+1. Basic sound input
+2. Manipulate anchor points z axis
+3. Manipulate lines
 
 ## scenes.js
 1. Design structure
