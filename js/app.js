@@ -7,6 +7,7 @@ var originX, originY;
 var cameraControls, effectController;
 var clock = new THREE.Clock();
 var floater;
+var sound;
 var threeObject;
 var planeMesh;
 
@@ -86,6 +87,9 @@ function init() {
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
 
     var windowResize = THREEx.WindowResize(renderer, camera);
+
+    // Sound
+    sound = new SoundVisualiser({source : 'microphone'});
 }
 
 function addToDOM() {
@@ -109,6 +113,7 @@ function animate() {
     floater.animateAnchors(floater);
     threeObject.updateLines(threeObject);
     threeObject.updateConnectors(threeObject);
+    threeObject.microphoneInput(threeObject, sound.getData(sound));
     render();
 }
 
