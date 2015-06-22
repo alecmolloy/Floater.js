@@ -31,7 +31,7 @@ SoundVisualiser.prototype.setupMicrophone = function (self) {
         navigator.mozGetUserMedia ||
         navigator.msGetUserMedia);
 
-    navigator.webkitGetUserMedia({
+    navigator.getUserMedia({
             audio: true
         },
         self.gotStream.bind(self),
