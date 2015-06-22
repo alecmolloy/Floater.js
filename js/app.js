@@ -14,15 +14,15 @@ var planeMesh;
 function fillScene() {
     scene = new THREE.Scene();
 
-//    floater = new Floater({
-//        fieldWidth: canvasWidth,
-//        fieldHeight: canvasHeight,
-//        walls: true,
-//        anchors: 3,
-//        linesBetween:           [   '01',  '12' ],
-//        segments:               [   10          ],
-//        relationshipsBetween:   [   '01'        ]
-//    })
+    //    floater = new Floater({
+    //        fieldWidth: canvasWidth,
+    //        fieldHeight: canvasHeight,
+    //        walls: true,
+    //        anchors: 3,
+    //        linesBetween:           [   '01',  '12' ],
+    //        segments:               [   10          ],
+    //        relationshipsBetween:   [   '01'        ]
+    //    })
 
     floater = new Floater({
         anchors: 4,
@@ -89,7 +89,10 @@ function init() {
     var windowResize = THREEx.WindowResize(renderer, camera);
 
     // Sound
-    sound = new SoundVisualiser({source : 'microphone'});
+    sound = new SoundVisualiser({
+        sourcePath: 'microphone',
+        smoothingTimeConstant : .97
+    });
 }
 
 function addToDOM() {
