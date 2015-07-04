@@ -28,10 +28,6 @@ Floaters are drawn with only straight lines, but the more segments drawn, the mo
  *  @param config.linesBetween {String[]}
  *  @param config.segments {Number}
  *  @param config.relationshipsBetween {String[]}
-<<<<<<< HEAD
- *  @param config.walls {Boolean}
-=======
->>>>>>> feature/microphone-input
  */
 function Floater(config) {
     this.dimensions = config.dimensions || 3;
@@ -67,13 +63,8 @@ function Floater(config) {
 
 /*
  *  Anchor constructor
-<<<<<<< HEAD
- *  @param {Object} x x coordinate for anchor point
- *  @param {Object} y y coordinate for anchor point
-=======
  *  @param {Object} vector x, y, z coördinates for the anchor point
  *  @param {Object} jitter x, y, z translation vector for the anchor point's jitter
->>>>>>> feature/microphone-input
  *  @param {Number} index Which number vector this is
  *  @param {Object} eVector The "euclidean vector" for the anchor point's movement. Essentially the direction and speed of the anchor point.
  */
