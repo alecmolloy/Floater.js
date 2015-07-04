@@ -37,8 +37,6 @@ function fillScene() {
     // Lights
     var ambientLight = new THREE.AmbientLight(0x333333);
     scene.add(ambientLight);
-
-
 }
 
 function init() {
