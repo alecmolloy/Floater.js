@@ -3,7 +3,6 @@
 
 var camera, scene, renderer, windowResize;
 var canvasWidth, canvasHeight, canvasRatio, dpr;
-var originX, originY;
 var cameraControls, effectController;
 var clock = new THREE.Clock();
 var floater;
@@ -13,25 +12,24 @@ var planeMesh;
 function fillScene() {
     scene = new THREE.Scene();
 
-//    floater = new Floater({
-//        fieldWidth: canvasWidth,
-//        fieldHeight: canvasHeight,
-//        walls: true,
-//        anchors: 3,
-//        linesBetween:           [   '01',  '12' ],
-//        segments:               [   10          ],
-//        relationshipsBetween:   [   '01'        ]
-//    })
-
     floater = new Floater({
-        anchors: 4,
-        fieldHeight: canvasHeight,
         fieldWidth: canvasWidth,
+        fieldHeight: canvasHeight,
         walls: true,
-        linesBetween: ['01', '12', '23', '30'],
-        segments: [70, 70, 70, 70],
-        relationshipsBetween: ['01', '12', '23', '30']
-    });
+        anchors: 3,
+        linesBetween: ['01', '12'],
+        segments: [10],
+        relationshipsBetween: ['01']
+    })
+//    floater = new Floater({
+//        anchors: 4,
+//        fieldHeight: canvasHeight,
+//        fieldWidth: canvasWidth,
+//        walls: true,
+//        linesBetween: ['01', '12', '23', '30'],
+//        segments: 70,
+//        relationshipsBetween: ['01', '12', '23', '30']
+//    });
 
     threeObject = new Floater.ThreeObject(floater);
 
@@ -39,20 +37,7 @@ function fillScene() {
     var ambientLight = new THREE.AmbientLight(0x333333);
     scene.add(ambientLight);
 
-    // Screen
-    var planeGeometry = new THREE.PlaneBufferGeometry(canvasWidth, canvasHeight);
 
-    var planeMaterial = new THREE.MeshBasicMaterial({
-        color: 0xf7c2d9,
-        side: THREE.DoubleSide
-    });
-
-    planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-
-    planeMesh.rotateOnAxis(new THREE.Vector3(1, 0, 0), Math.PI / 2);
-    planeMesh.translateZ(5);
-
-    scene.add(planeMesh);
 }
 
 function init() {
@@ -62,9 +47,6 @@ function init() {
     canvasRatio = canvasWidth / canvasHeight;
     dpr = window.devicePixelRatio || 1;
 
-    originX = -canvasWidth / 2;
-    originY = -canvasHeight / 2;
-
     // Renderer
     renderer = new THREE.WebGLRenderer({
         antialias: true
@@ -73,7 +55,7 @@ function init() {
     renderer.gammaOutput = true;
     renderer.setPixelRatio(dpr);
     renderer.setSize(canvasWidth, canvasHeight);
-    renderer.setClearColor(0xffffff, 1);
+    renderer.setClearColor(0xf7c2d9, 1);
 
     var container = document.getElementById('container');
     container.appendChild(renderer.domElement);
@@ -109,6 +91,7 @@ function animate() {
     floater.animateAnchors(floater);
     threeObject.updateLines(threeObject);
     threeObject.updateConnectors(threeObject);
+    threeObject.floaterObj.rotation.z = clock.elapsedTime / 10;
     render();
 }
 
