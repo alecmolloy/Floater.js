@@ -31,7 +31,7 @@ SoundVisualiser.prototype.setupMicrophone = function (self) {
         navigator.mozGetUserMedia ||
         navigator.msGetUserMedia);
 
-    navigator.getUserMedia({
+    navigator.webkitGetUserMedia({
             audio: true
         },
         self.gotStream.bind(self),
@@ -41,8 +41,8 @@ SoundVisualiser.prototype.setupMicrophone = function (self) {
 SoundVisualiser.prototype.setupAnalyser = function (self, config) {
     self.analyser = self.context.createAnalyser();
     self.analyser.fftSize = config.fftSize || 32;
-    self.analyser.smoothingTimeConstant = config.smoothingTimeConstant || 0.9;
-    self.analyser.minDecibels = config.minDecibels || -90;
+    self.analyser.smoothingTimeConstant = config.smoothingTimeConstant || 0.95;
+    self.analyser.minDecibels = config.minDecibels || -70;
     self.analyser.maxDecibels = config.maxDecibels || -10;
     self.bufferLength = self.analyser.frequencyBinCount;
     self.dataArray = new Uint8Array(self.bufferLength);

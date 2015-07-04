@@ -32,36 +32,25 @@ Floater.ThreeObject.prototype.createLines = function (self) {
 }
 
 Floater.ThreeObject.prototype.updateLines = function (self) {
-    for (i = 0; i < self.floaterGeometry.lines.length; i++) { // Iterate through all lines
-        for (j = 1; j <= 2; j++) { // Iterate through all vertices
-            var currentAnchor = 'anchor' + j;
-
-            // Create vectors for anchor
-            var anchorX = originX + self.floaterGeometry.lines[i][currentAnchor].x;
-            var anchorY = originY + self.floaterGeometry.lines[i][currentAnchor].y;
-
-            // Fill in new values
-            self.lines.children[i].geometry.vertices[j - 1].x = anchorX;
-            self.lines.children[i].geometry.vertices[j - 1].z = anchorY;
+    for (var line = 0; line < self.floaterGeometry.lines.length; line++) { // Iterate through all lines
+        for (var vertice = 1; vertice <= 2; vertice++) { // Iterate through all vertices
+            var anchor = 'anchor' + vertice;
+            var currentAnchor = self.floaterGeometry.lines[line][anchor];
+            for (var iDimension = 0; iDimension < 3; iDimension++) {
+                var dimension = ['x', 'y', 'z'][iDimension];
+                var dimensionValue = currentAnchor.vector[dimension] + currentAnchor.jitter[dimension];
+                self.lines.children[line].geometry.vertices[vertice - 1][dimension] = dimensionValue;
+            }
         }
-        self.lines.children[i].geometry.verticesNeedUpdate = true;
+        self.lines.children[line].geometry.verticesNeedUpdate = true;
     }
 }
-
-Floater.ThreeObject.prototype.microphoneInput = function (self, dataArray) {
-    for (i = 0; i < self.floaterGeometry.lines.length; i++) { // Iterate through all lines
-        for (j = 1; j <= 2; j++) { // Iterate through all vertices
-            self.lines.children[i].geometry.vertices[j - 1].y = dataArray[i * 2];
-        }
-    }
-}
-
 
 Floater.ThreeObject.prototype.createConnectors = function (self) {
-    for (i = 0; i < self.floaterGeometry.relationships.length; i++) {
+    for (var relationship = 0; relationship < self.floaterGeometry.relationships.length; relationship++) {
         // Create vectors for each segment point
         var segments = new THREE.Object3D();
-        for (j = 0; j < self.floaterGeometry.relationships[i].line1.connectorPoints.length; j++) {
+        for (var connectorPoint = 0; connectorPoint < self.floaterGeometry.relationships[relationship].line1.connectorPoints.length; connectorPoint++) {
             var connector1 = new THREE.Vector3(0, 0, 0);
             var connector2 = new THREE.Vector3(0, 0, 0);
 
@@ -82,20 +71,16 @@ Floater.ThreeObject.prototype.createConnectors = function (self) {
 }
 
 Floater.ThreeObject.prototype.updateConnectors = function (self) {
-    for (i = 0; i < self.floaterGeometry.relationships.length; i++) {
-        for (j = 0; j < self.floaterGeometry.relationships[i].line1.connectorPoints.length; j++) {
-            // Access the line's connector point coördinates and store them
-            var connector1X = originX + self.floaterGeometry.relationships[i].line1.connectorPoints[j].x;
-            var connector1Y = originY + self.floaterGeometry.relationships[i].line1.connectorPoints[j].y;
-            var connector2X = originX + self.floaterGeometry.relationships[i].line2.connectorPoints[j].x;
-            var connector2Y = originY + self.floaterGeometry.relationships[i].line2.connectorPoints[j].y;
-
-            // Fill in new values
-            self.relationships.children[i].children[j].geometry.vertices[0].x = connector1X;
-            self.relationships.children[i].children[j].geometry.vertices[0].z = connector1Y;
-            self.relationships.children[i].children[j].geometry.vertices[1].x = connector2X;
-            self.relationships.children[i].children[j].geometry.vertices[1].z = connector2Y;
-            self.relationships.children[i].children[j].geometry.verticesNeedUpdate = true;
+    for (relationship = 0; relationship < self.floaterGeometry.relationships.length; relationship++) {
+        for (connector = 0; connector < self.floaterGeometry.segments; connector++) {
+            var connectorPoint1 = self.floaterGeometry.relationships[relationship].line1.connectorPoints[connector];
+            var connectorPoint2 = self.floaterGeometry.relationships[relationship].line2.connectorPoints[connector];
+            for (var iDimension = 0; iDimension < 3; iDimension++) {
+                var dimension = ['x', 'y', 'z'][iDimension];
+                self.relationships.children[relationship].children[connector].geometry.vertices[0][dimension] = connectorPoint1[dimension];
+                self.relationships.children[relationship].children[connector].geometry.vertices[1][dimension] = connectorPoint2[dimension];
+            }
+            self.relationships.children[relationship].children[connector].geometry.verticesNeedUpdate = true;
         }
     }
 }
