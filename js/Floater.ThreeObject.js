@@ -35,9 +35,10 @@ Floater.ThreeObject.prototype.updateLines = function (self) {
     for (var line = 0; line < self.floaterGeometry.lines.length; line++) { // Iterate through all lines
         for (var vertice = 1; vertice <= 2; vertice++) { // Iterate through all vertices
             var anchor = 'anchor' + vertice;
+            var currentAnchor = self.floaterGeometry.lines[line][anchor];
             for (var iDimension = 0; iDimension < 3; iDimension++) {
                 var dimension = ['x', 'y', 'z'][iDimension];
-                var dimensionValue = self.floaterGeometry.lines[line][anchor].vector[dimension];
+                var dimensionValue = currentAnchor.vector[dimension] + currentAnchor.jitter[dimension];
                 self.lines.children[line].geometry.vertices[vertice - 1][dimension] = dimensionValue;
             }
         }

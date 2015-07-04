@@ -6,21 +6,13 @@ var canvasWidth, canvasHeight, canvasRatio, dpr;
 var cameraControls, effectController;
 var clock = new THREE.Clock();
 var floater;
+var sound;
 var threeObject;
 var planeMesh;
 
 function fillScene() {
     scene = new THREE.Scene();
 
-    floater = new Floater({
-        fieldWidth: canvasWidth,
-        fieldHeight: canvasHeight,
-        walls: true,
-        anchors: 3,
-        linesBetween: ['01', '12'],
-        segments: [10],
-        relationshipsBetween: ['01']
-    })
 //    floater = new Floater({
 //        anchors: 4,
 //        fieldHeight: canvasHeight,
@@ -30,6 +22,14 @@ function fillScene() {
 //        segments: 70,
 //        relationshipsBetween: ['01', '12', '23', '30']
 //    });
+    floater = new Floater({
+        anchors: 8,
+        fieldHeight: canvasHeight,
+        fieldWidth: canvasWidth,
+        linesBetween: ['01', '12', '23', '30', '45', '56', '67'],
+        segments: 70,
+        relationshipsBetween: ['01', '12', '23', '30', '45', '56', '46']
+    });
 
     threeObject = new Floater.ThreeObject(floater);
 
@@ -68,6 +68,9 @@ function init() {
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);
 
     var windowResize = THREEx.WindowResize(renderer, camera);
+
+    // Sound
+    sound = new SoundVisualiser({source : 'microphone'});
 }
 
 function addToDOM() {
@@ -88,6 +91,7 @@ function render() {
 
 function animate() {
     window.requestAnimationFrame(animate);
+    floater.microphoneJitter(floater, sound.getData(sound));
     floater.animateAnchors(floater);
     threeObject.updateLines(threeObject);
     threeObject.updateConnectors(threeObject);
@@ -102,3 +106,4 @@ window.onload = function () {
     addToDOM();
     animate();
 };
+
