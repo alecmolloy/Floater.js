@@ -24,6 +24,7 @@ function fillScene() {
 //    });
     floater = new Floater({
         anchors: 8,
+        dimensions: 3,
         fieldHeight: canvasHeight,
         fieldWidth: canvasWidth,
         linesBetween: ['01', '12', '23', '30', '45', '56', '67'],
@@ -62,7 +63,7 @@ function init() {
 
     // Camera
     camera = new THREE.PerspectiveCamera(30, canvasRatio, 1, 1000000);
-    camera.position.set(0, 1500, 0);
+    camera.position.set(0, 0, 1500);
 
     // Orbit and Pan controls
     cameraControls = new THREE.OrbitControls(camera, renderer.domElement);

@@ -31,6 +31,11 @@ Floaters are drawn with only straight lines, but the more segments drawn, the mo
  */
 function Floater(config) {
     this.dimensions = config.dimensions || 3;
+    this.dimensionNames = ['x', 'y'];
+    if (this.dimensions === 3) {
+        this.dimensionNames.push('z');
+    }
+
     this.field = {
         x: window.innerHeight,
         y: window.innerHeight,
@@ -107,8 +112,8 @@ Floater.prototype.animateAnchors = function (self) {
  */
 
 Floater.prototype.updateAnchorPosition = function (self, anchor) {
-    for (var iDimension = 0; iDimension < 3; iDimension++) {
-        var dimension = ['x', 'y', 'z'][iDimension];
+    for (var iDimension = 0; iDimension < self.dimensions; iDimension++) {
+        var dimension = self.dimensionNames[iDimension];
         if (anchor.vector[dimension] >= self.field[dimension] / 2 || anchor.vector[dimension] <= 0 - self.field[dimension] / 2) {
             anchor.eVector[dimension] *= -1; // Reverse the sign so that it bounces and goes the other way
         }
@@ -165,8 +170,8 @@ Floater.prototype.createAnchor = function (self) {
     }
 
     // Calculate random vectors within the given field, and euclidean vectors
-    for (var iDimension = 0; iDimension < 3; iDimension++) {
-        var dimension = ['x', 'y', 'z'][iDimension];
+    for (var iDimension = 0; iDimension < self.dimensions; iDimension++) {
+        var dimension = self.dimensionNames[iDimension];
         vector[dimension] = Math.round(Math.random() * (self.field[dimension]) - self.field[dimension] / 2);
         eVector[dimension] = (Math.random() * 2) - 1;
     }
@@ -318,8 +323,8 @@ Floater.prototype.updateSegments = function (self) {
             var anchor1 = line.anchor1;
             var anchor2 = line.anchor2;
             for (var segment = 0; segment < self.segments; segment++) {
-                for (var iDimension = 0; iDimension < 3; iDimension++) {
-                    var dimension = ['x', 'y', 'z'][iDimension];
+                for (var iDimension = 0; iDimension < self.dimensions; iDimension++) {
+                    var dimension = self.dimensionNames[iDimension];
                     var anchor1D = anchor1.vector[dimension] + anchor1.jitter[dimension];
                     var anchor2D = anchor2.vector[dimension] + anchor2.jitter[dimension];
                     var dimensionValue = ((anchor2D - anchor1D) / self.segments) * segment + anchor1D;
@@ -340,7 +345,7 @@ Floater.prototype.microphoneJitter = function (self) {
     for (var anchor = 0; anchor < self.anchors.length; anchor++) {
         self.anchors[anchor].jitter.x = Math.pow(sound.dataArray[0], 3) / 50000;
         self.anchors[anchor].jitter.y = Math.pow(sound.dataArray[7], 3) / 50000;
-        self.anchors[anchor].jitter.z = Math.pow(sound.dataArray[15], 3)/ 50000;
+        self.anchors[anchor].jitter.z = Math.pow(sound.dataArray[15], 3) / 50000;
     }
 }
 
