@@ -78,11 +78,7 @@ function Floater(config) {
  *  @param {Object} eVector The "euclidean vector" for the anchor point's movement. Essentially the direction and speed of the anchor point.
  */
 
-<<<<<<< HEAD
-Floater.prototype.Anchor = function (vector, index, eVector) {
-=======
 Floater.prototype.Anchor = function (vector, jitter, index, eVector) {
->>>>>>> feature/microphone-input
     this.vector = {
         x: vector.x,
         y: vector.y
@@ -90,8 +86,6 @@ Floater.prototype.Anchor = function (vector, jitter, index, eVector) {
     if (vector.z) {
         this.vector.z = vector.z;
     }
-<<<<<<< HEAD
-=======
     this.jitter = {
         x: jitter.x,
         y: jitter.y
@@ -99,7 +93,6 @@ Floater.prototype.Anchor = function (vector, jitter, index, eVector) {
     if (jitter.z) {
         this.jitter.z = jitter.z;
     }
->>>>>>> feature/microphone-input
     this.index = index;
     this.eVector = eVector;
 };
@@ -157,11 +150,7 @@ Floater.prototype.ConnectorPoint = function (vector) {
 };
 
 /*
-<<<<<<< HEAD
- *  Creates Anchor
-=======
  *  Creates an Anchor. An anchor has a vector (where it is in space), its jitter (a translation of how far it should be from its calculated position), and a eVector (euclidean vector: the direction and speed of the anchor point)
->>>>>>> feature/microphone-input
  *  @param {Object} self The parent floater object
  */
 
@@ -170,23 +159,17 @@ Floater.prototype.createAnchor = function (self) {
         x: null,
         y: null
     };
-<<<<<<< HEAD
-=======
     var jitter = {
         x: null,
         y: null
     };
->>>>>>> feature/microphone-input
     var eVector = {
         x: null,
         y: null
     };
     if (self.dimensions === 3) {
         vector.z = null;
-<<<<<<< HEAD
-=======
         jitter.z = null;
->>>>>>> feature/microphone-input
         eVector.z = null;
     }
 
@@ -198,11 +181,7 @@ Floater.prototype.createAnchor = function (self) {
     }
 
     // Create Anchor object from vector and euclidean ector
-<<<<<<< HEAD
-    var anchor = new self.Anchor(vector, self.anchors.length, eVector);
-=======
     var anchor = new self.Anchor(vector, jitter, self.anchors.length, eVector);
->>>>>>> feature/microphone-input
 
     // Push the new anchor into the anchor array
     return self.anchors.push(anchor);
@@ -350,13 +329,9 @@ Floater.prototype.updateSegments = function (self) {
             for (var segment = 0; segment < self.segments; segment++) {
                 for (var iDimension = 0; iDimension < 3; iDimension++) {
                     var dimension = ['x', 'y', 'z'][iDimension];
-<<<<<<< HEAD
-                    var dimensionValue = ((anchor2.vector[dimension] - anchor1.vector[dimension]) / self.segments) * segment + anchor1.vector[dimension];
-=======
                     var anchor1D = anchor1.vector[dimension] + anchor1.jitter[dimension];
                     var anchor2D = anchor2.vector[dimension] + anchor2.jitter[dimension];
                     var dimensionValue = ((anchor2D - anchor1D) / self.segments) * segment + anchor1D;
->>>>>>> feature/microphone-input
                     line.connectorPoints[segment][dimension] = dimensionValue;
                 }
             }
@@ -366,8 +341,6 @@ Floater.prototype.updateSegments = function (self) {
 };
 
 /*
-<<<<<<< HEAD
-=======
  *  Updates the jitter property of each anchor with sound data.
  *  @param {Object} self The parent floater object
  */
@@ -381,7 +354,6 @@ Floater.prototype.microphoneJitter = function (self) {
 }
 
 /*
->>>>>>> feature/microphone-input
  *  Reports on the current status of the floater
  */
 
