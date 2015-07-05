@@ -1,6 +1,7 @@
 Floater.ThreeObject = function (floaterGeometry) {
     this.floaterGeometry = floaterGeometry;
     this.floaterObj = new THREE.Object3D();
+    this.anchors = [];
     this.lines = new THREE.Object3D();
     this.relationships = new THREE.Object3D();
 
@@ -9,6 +10,7 @@ Floater.ThreeObject = function (floaterGeometry) {
         color: 0x0080ff
     });
 
+    this.createAnchors(this);
     this.createLines(this);
     this.createConnectors(this);
 
@@ -16,32 +18,41 @@ Floater.ThreeObject = function (floaterGeometry) {
     scene.add(this.floaterObj);
 };
 
+Floater.ThreeObject.prototype.createAnchors = function (self) {
+    for (var i = 0; i < self.floaterGeometry.anchors.length; i++) {
+        var anchor = new THREE.Vector3(0, 0, 0);
+        self.anchors.push(anchor);
+    }
+}
+
+Floater.ThreeObject.prototype.updateAnchors = function (self) {
+    for (var i = 0; i < self.anchors.length; i++) {
+        for (var iDimension = 0; iDimension < 3; iDimension++) {
+            var dimension = ['x', 'y', 'z'][iDimension];
+            var dimensionValue = self.floaterGeometry.anchors[i].vector[dimension] + self.floaterGeometry.anchors[i].jitter[dimension];
+            self.anchors[i][dimension] = dimensionValue;
+        }
+    }
+    // TODO: Make sure vertices get updated
+}
+
 Floater.ThreeObject.prototype.createLines = function (self) {
-    for (i = 0; i < self.floaterGeometry.lines.length; i++) {
+    for (var i = 0; i < self.floaterGeometry.lines.length; i++) {
         var lineGeometry = new THREE.Geometry();
 
-        var anchor1 = new THREE.Vector3(0, 0, 0);
-        var anchor2 = new THREE.Vector3(0, 0, 0);
-        lineGeometry.vertices.push(anchor1);
-        lineGeometry.vertices.push(anchor2);
+        var anchor1Index = self.floaterGeometry.lines[i].anchor1.index;
+        var anchor2Index = self.floaterGeometry.lines[i].anchor2.index;
+        lineGeometry.vertices.push(self.anchors[anchor1Index]);
+        lineGeometry.vertices.push(self.anchors[anchor2Index]);
 
         var lineMesh = new THREE.Line(lineGeometry, self.lineMaterial);
         self.lines.add(lineMesh);
     }
-    self.updateLines(self);
+        self.updateLines(self);
 }
 
 Floater.ThreeObject.prototype.updateLines = function (self) {
     for (var line = 0; line < self.floaterGeometry.lines.length; line++) { // Iterate through all lines
-        for (var vertice = 1; vertice <= 2; vertice++) { // Iterate through all vertices
-            var anchor = 'anchor' + vertice;
-            var currentAnchor = self.floaterGeometry.lines[line][anchor];
-            for (var iDimension = 0; iDimension < 3; iDimension++) {
-                var dimension = ['x', 'y', 'z'][iDimension];
-                var dimensionValue = currentAnchor.vector[dimension] + currentAnchor.jitter[dimension];
-                self.lines.children[line].geometry.vertices[vertice - 1][dimension] = dimensionValue;
-            }
-        }
         self.lines.children[line].geometry.verticesNeedUpdate = true;
     }
 }

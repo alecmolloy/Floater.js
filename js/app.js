@@ -9,26 +9,27 @@ var floater;
 var sound;
 var threeObject;
 var planeMesh;
+var gui, params;
 
 function fillScene() {
     scene = new THREE.Scene();
 
-//    floater = new Floater({
-//        anchors: 4,
-//        fieldHeight: canvasHeight,
-//        fieldWidth: canvasWidth,
-//        walls: true,
-//        linesBetween: ['01', '12', '23', '30'],
-//        segments: 70,
-//        relationshipsBetween: ['01', '12', '23', '30']
-//    });
+    //    floater = new Floater({
+    //        anchors: 4,
+    //        fieldHeight: canvasHeight,
+    //        fieldWidth: canvasWidth,
+    //        walls: true,
+    //        linesBetween: ['01', '12', '23', '30'],
+    //        segments: 70,
+    //        relationshipsBetween: ['01', '12', '23', '30']
+    //    });
     floater = new Floater({
         anchors: 8,
         dimensions: 3,
         fieldHeight: canvasHeight,
         fieldWidth: canvasWidth,
         linesBetween: ['01', '12', '23', '30', '45', '56', '67'],
-        segments: 70,
+        segments: 40,
         relationshipsBetween: ['01', '12', '23', '30', '45', '56', '46']
     });
 
@@ -54,8 +55,7 @@ function init() {
     renderer.gammaOutput = true;
     renderer.setPixelRatio(dpr);
     renderer.setSize(canvasWidth, canvasHeight);
-    renderer.setClearColor(0xf7c2d9, 1);
-
+    renderer.setClearColor(0xfcdeeb, 1);
     var container = document.getElementById('container');
     container.appendChild(renderer.domElement);
 
@@ -69,7 +69,36 @@ function init() {
     var windowResize = THREEx.WindowResize(renderer, camera);
 
     // Sound
-    sound = new SoundVisualiser({source : 'microphone'});
+    sound = new SoundVisualiser({
+        source: 'microphone'
+    });
+
+}
+
+function setupStats() {
+    // GUI
+    params = {
+        anchors: floater.anchors.length,
+        dimensions: floater.dimensions,
+        segments: floater.segments,
+    };
+    var gui = new dat.GUI({
+        height: 5 * 32 - 1
+    });
+    gui.add(params, 'anchors').min(2).max(50).step(1).onFinishChange(function () {
+        floater.checkAnchors(floater, params.anchors);
+    }); // check if i need to remove or add anchors
+    gui.add(params, 'dimensions').min(2).max(3).step(1).onFinishChange(function () {
+        floater.dimensions = params.dimensions;
+        floater.dimensionNames = ['x', 'y'];
+        if (params.dimensions === 3) {
+            floater.dimensionNames.push('z');
+        }
+    }); // check if i need to change dimensions
+    gui.add(params, 'segments').min(0).onFinishChange(function () {
+        floater.segments = params.segments;
+    }); // check if the number of segments needs to be changed
+
 }
 
 function addToDOM() {
@@ -92,6 +121,7 @@ function animate() {
     window.requestAnimationFrame(animate);
     floater.microphoneJitter(floater, sound.getData(sound));
     floater.animateAnchors(floater);
+    threeObject.updateAnchors(threeObject);
     threeObject.updateLines(threeObject);
     threeObject.updateConnectors(threeObject);
     threeObject.floaterObj.rotation.z = clock.elapsedTime / 10;
@@ -104,5 +134,5 @@ window.onload = function () {
     fillScene();
     addToDOM();
     animate();
+    setupStats();
 };
-

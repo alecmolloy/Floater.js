@@ -192,9 +192,25 @@ Floater.prototype.createAnchor = function (self) {
 Floater.prototype.destroyAnchor = function (self, index) {
     index = index || (self.anchors.length - 1); // Defaults to last anchor in array
     var destroyedAnchor = self.anchors.splice(index, 1); // Remove the anchor from the array
-    Floater.checkLines(self, destroyedAnchor); // Check to see if there are lines affected by this removal
+    self.checkLines(self, destroyedAnchor); // Check to see if there are lines affected by this removal
 
     return destroyedAnchor;
+};
+
+/*
+ *  Check to see if there are lines affected by the removal of anchor points
+ *  @param {Object} self The parent floater object
+ *  @param {Object} destroyedAnchor A copy of an anchor point that has just been destroyed
+ */
+
+Floater.prototype.checkAnchors = function (self, newAnchors) {
+    while (newAnchors !== self.anchors.length) {
+        if (newAnchors < self.anchors.length) {
+            self.destroyAnchor(self);
+        } else if (newAnchors > self.anchors.length) {
+            self.createAnchor(floater);
+        }
+    }
 };
 
 /*
@@ -218,7 +234,7 @@ Floater.prototype.createLine = function (self, anchor1, anchor2) {
 Floater.prototype.destroyLine = function (self, index) {
     index = index || (self.lines.length - 1); // Defaults to last anchor in array
     var destroyedLine = self.lines.splice(index, 1); // Remove the anchor from the array
-    Floater.checkRelationships(self, destroyedLine); // Check to see if there are lines affected by this removal
+    self.checkRelationships(self, destroyedLine); // Check to see if there are lines affected by this removal
 
     return destroyedLine;
 };
