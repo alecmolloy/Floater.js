@@ -46,7 +46,7 @@ function Floater(config) {
     // Generate anchor array
     this.anchors = [];
     for (var anchor = 0; anchor < config.anchors; anchor++) {
-        this.createAnchor(this);
+        this.createAnchor();
     }
 
     // Line
@@ -54,7 +54,7 @@ function Floater(config) {
     for (var lineBetween = 0; lineBetween < config.linesBetween.length; lineBetween++) {
         var anchor1 = this.anchors[config.linesBetween[lineBetween].slice(0, 1)];
         var anchor2 = this.anchors[config.linesBetween[lineBetween].slice(1, 2)];
-        this.createLine(this, anchor1, anchor2);
+        this.createLine(anchor1, anchor2);
     }
 
     // Create relationships
@@ -62,7 +62,7 @@ function Floater(config) {
     for (var relationshipBetween = 0; relationshipBetween < config.relationshipsBetween.length; relationshipBetween++) {
         var line1 = this.lines[config.relationshipsBetween[relationshipBetween].slice(0, 1).charCodeAt() - 48]; // Store first line
         var line2 = this.lines[config.relationshipsBetween[relationshipBetween].slice(1, 2).charCodeAt() - 48]; // Store second line
-        this.createRelationship(this, line1, line2);
+        this.createRelationship(line1, line2);
     }
 }
 
@@ -74,7 +74,7 @@ function Floater(config) {
  *  @param {Object} eVector The "euclidean vector" for the anchor point's movement. Essentially the direction and speed of the anchor point.
  */
 
-Floater.prototype.Anchor = function (vector, jitter, index, eVector) {
+Floater.Anchor = function (vector, jitter, index, eVector) {
     this.vector = {
         x: vector.x,
         y: vector.y
@@ -95,26 +95,26 @@ Floater.prototype.Anchor = function (vector, jitter, index, eVector) {
 
 /*
  *  Animates all anchor point positions
- *  @param {Object} self The parent Floater object
+ *  @param {Object} this The parent Floater object
  */
 
-Floater.prototype.animateAnchors = function (self) {
-    for (var anchor = 0; anchor < self.anchors.length; anchor++) {
-        self.updateAnchorPosition(self, self.anchors[anchor]);
+Floater.prototype.animateAnchors = function () {
+    for (var anchor = 0; anchor < this.anchors.length; anchor++) {
+        this.updateAnchorPosition(this.anchors[anchor]);
     }
-    self.updateSegments(self);
+    this.updateSegments();
 }
 
 /*
  *  Updates an anchor point position on their euclidean vectors
- *  @param {Object} self The parent Floater object
+ *  @param {Object} this The parent Floater object
  *  @param {Object} anchor The anchor point which will be translated in the direction and magnitude of its euclidean vector.
  */
 
-Floater.prototype.updateAnchorPosition = function (self, anchor) {
-    for (var iDimension = 0; iDimension < self.dimensions; iDimension++) {
-        var dimension = self.dimensionNames[iDimension];
-        if (anchor.vector[dimension] >= self.field[dimension] / 2 || anchor.vector[dimension] <= 0 - self.field[dimension] / 2) {
+Floater.prototype.updateAnchorPosition = function (anchor) {
+    for (var iDimension = 0; iDimension < this.dimensions; iDimension++) {
+        var dimension = this.dimensionNames[iDimension];
+        if (anchor.vector[dimension] >= this.field[dimension] / 2 || anchor.vector[dimension] <= 0 - this.field[dimension] / 2) {
             anchor.eVector[dimension] *= -1; // Reverse the sign so that it bounces and goes the other way
         }
         anchor.vector[dimension] += anchor.eVector[dimension];
@@ -127,7 +127,7 @@ Floater.prototype.updateAnchorPosition = function (self, anchor) {
  *  @param {Number} index
  */
 
-Floater.prototype.Line = function (anchor1, anchor2, index) {
+Floater.Line = function (anchor1, anchor2, index) {
     this.index = index;
     this.anchor1 = anchor1; // Anchor
     this.anchor2 = anchor2; // Anchor
@@ -139,7 +139,7 @@ Floater.prototype.Line = function (anchor1, anchor2, index) {
  *  @param {Object} vector coordinates for connector point
  */
 
-Floater.prototype.ConnectorPoint = function (vector) {
+Floater.ConnectorPoint = function (vector) {
     this.x = vector.x || 0; // Point
     this.y = vector.y || 0; // Point
     this.z = vector.z || 0; // Point
@@ -147,10 +147,10 @@ Floater.prototype.ConnectorPoint = function (vector) {
 
 /*
  *  Creates an Anchor. An anchor has a vector (where it is in space), its jitter (a translation of how far it should be from its calculated position), and a eVector (euclidean vector: the direction and speed of the anchor point)
- *  @param {Object} self The parent floater object
+ *  @param {Object} this The parent floater object
  */
 
-Floater.prototype.createAnchor = function (self) {
+Floater.prototype.createAnchor = function () {
     var vector = {
         x: null,
         y: null
@@ -163,123 +163,123 @@ Floater.prototype.createAnchor = function (self) {
         x: null,
         y: null
     };
-    if (self.dimensions === 3) {
+    if (this.dimensions === 3) {
         vector.z = null;
         jitter.z = null;
         eVector.z = null;
     }
 
     // Calculate random vectors within the given field, and euclidean vectors
-    for (var iDimension = 0; iDimension < self.dimensions; iDimension++) {
-        var dimension = self.dimensionNames[iDimension];
-        vector[dimension] = Math.round(Math.random() * (self.field[dimension]) - self.field[dimension] / 2);
+    for (var iDimension = 0; iDimension < this.dimensions; iDimension++) {
+        var dimension = this.dimensionNames[iDimension];
+        vector[dimension] = Math.round(Math.random() * (this.field[dimension]) - this.field[dimension] / 2);
         eVector[dimension] = (Math.random() * 2) - 1;
     }
 
     // Create Anchor object from vector and euclidean ector
-    var anchor = new self.Anchor(vector, jitter, self.anchors.length, eVector);
+    var anchor = new Floater.Anchor(vector, jitter, this.anchors.length, eVector);
 
     // Push the new anchor into the anchor array
-    return self.anchors.push(anchor);
+    return this.anchors.push(anchor);
 };
 
 /*
  *  Destroys Anchor
- *  @param {Object} self The parent floater object
- *  @param {Number} [index=self.anchors.length] The index of the anchor to be destroyed. Defaults to last anchor point in anchor array.
+ *  @param {Object} this The parent floater object
+ *  @param {Number} [index=this.anchors.length] The index of the anchor to be destroyed. Defaults to last anchor point in anchor array.
  */
 
-Floater.prototype.destroyAnchor = function (self, index) {
-    index = index || (self.anchors.length - 1); // Defaults to last anchor in array
-    var destroyedAnchor = self.anchors.splice(index, 1); // Remove the anchor from the array
-    Floater.checkLines(self, destroyedAnchor); // Check to see if there are lines affected by this removal
+Floater.prototype.destroyAnchor = function (index) {
+    index = index || (this.anchors.length - 1); // Defaults to last anchor in array
+    var destroyedAnchor = this.anchors.splice(index, 1); // Remove the anchor from the array
+    Floater.checkLines(destroyedAnchor); // Check to see if there are lines affected by this removal
 
     return destroyedAnchor;
 };
 
 /*
  *  Creates Line
- *  @param {Object} self The parent floater object
+ *  @param {Object} this The parent floater object
  *  @param {Object} anchor1 The first anchor point with which to create a line
  *  @param {Object} anchor2 The second anchor point with which to create a line
  */
 
-Floater.prototype.createLine = function (self, anchor1, anchor2) {
-    var line = new self.Line(anchor1, anchor2, self.lines.length);
-    return self.lines.push(line);
+Floater.prototype.createLine = function (anchor1, anchor2) {
+    var line = new Floater.Line(anchor1, anchor2, this.lines.length);
+    return this.lines.push(line);
 };
 
 /*
  *  Destroys Line
- *  @param {Object} self The parent floater object
- *  @param {Number} [index=self.lines.length] The index of the line to be destroyed. Defaults to last line in line array.
+ *  @param {Object} this The parent floater object
+ *  @param {Number} [index=this.lines.length] The index of the line to be destroyed. Defaults to last line in line array.
  */
 
-Floater.prototype.destroyLine = function (self, index) {
-    index = index || (self.lines.length - 1); // Defaults to last anchor in array
-    var destroyedLine = self.lines.splice(index, 1); // Remove the anchor from the array
-    Floater.checkRelationships(self, destroyedLine); // Check to see if there are lines affected by this removal
+Floater.prototype.destroyLine = function (index) {
+    index = index || (this.lines.length - 1); // Defaults to last anchor in array
+    var destroyedLine = this.lines.splice(index, 1); // Remove the anchor from the array
+    Floater.checkRelationships(destroyedLine); // Check to see if there are lines affected by this removal
 
     return destroyedLine;
 };
 
 /*
  *  Check to see if there are lines affected by the removal of anchor points
- *  @param {Object} self The parent floater object
+ *  @param {Object} this The parent floater object
  *  @param {Object} destroyedAnchor A copy of an anchor point that has just been destroyed
  */
 
-Floater.prototype.checkLines = function (self, destroyedAnchor) {
-    for (var i = 0; i < self.lines.length; i++) {
-        if (self.lines[i].anchor1.index === destroyedAnchor.index ||
-            self.lines[i].anchor2.index === destroyedAnchor.index) { // Looks to see if the current line has an anchor point that no longer exists
-            var destroyedLine = self.lines.splice(i, 1); // Removes the line and stores it in a variable
-            Floater.checkRelationships(self, destroyedLine); // Check to see if there are relationships affected by this removal
+Floater.prototype.checkLines = function (destroyedAnchor) {
+    for (var i = 0; i < this.lines.length; i++) {
+        if (this.lines[i].anchor1.index === destroyedAnchor.index ||
+            this.lines[i].anchor2.index === destroyedAnchor.index) { // Looks to see if the current line has an anchor point that no longer exists
+            var destroyedLine = this.lines.splice(i, 1); // Removes the line and stores it in a variable
+            Floater.checkRelationships(destroyedLine); // Check to see if there are relationships affected by this removal
         }
     }
 };
 
 /*
  *  Creates a relationship
- *  @param {Object} self The parent floater object
+ *  @param {Object} this The parent floater object
  *  @param {Object} line1 The first line with which to create a relationship
  *  @param {Object} line2 The second line with which to create a relationship
  */
 
-Floater.prototype.createRelationship = function (self, line1, line2) {
-    var i = self.relationships.length;
-    self.relationships.push({
+Floater.prototype.createRelationship = function (line1, line2) {
+    var i = this.relationships.length;
+    this.relationships.push({
         line1: line1,
         line2: line2
     });
 
     // Create Segments
-    self.createSegments(self, i);
-    return self.relationships[i];
+    this.createSegments(i);
+    return this.relationships[i];
 };
 
 /*
  *  Destroys Line
- *  @param {Object} self The parent floater object
- *  @param {Number} [index=self.lines.length] The index of the line to be destroyed. Defaults to last line in line array.
+ *  @param {Object} this The parent floater object
+ *  @param {Number} [index=this.lines.length] The index of the line to be destroyed. Defaults to last line in line array.
  */
 
-Floater.prototype.destroyRelationship = function (self, index) {
-    index = index || (self.relationships.length - 1); // Defaults to last anchor in array
-    self.relationships.splice(index, 1); // Remove the anchor from the array
+Floater.prototype.destroyRelationship = function (index) {
+    index = index || (this.relationships.length - 1); // Defaults to last anchor in array
+    this.relationships.splice(index, 1); // Remove the anchor from the array
 };
 
 /*
  *  Check to see if there are relationships affected by the removal of lines
- *  @param {Object} self The parent floater object
+ *  @param {Object} this The parent floater object
  *  @param {Object} destroyedLine A copy of a line that has just been destroyed
  */
 
-Floater.prototype.checkRelationships = function (self, destroyedLine) {
-    for (var relationship = 0; i < self.relationships.length; i++) {
-        if (self.relationships[relationship].line1.index === destroyedLine.index ||
-            self.relationships[relationship].line2.index === destroyedLine.index) { // Looks to see if the current relationship has a line that no longer exists
-            self.relationships.splice(relationship, 1); // Removes the line
+Floater.prototype.checkRelationships = function (destroyedLine) {
+    for (var relationship = 0; i < this.relationships.length; i++) {
+        if (this.relationships[relationship].line1.index === destroyedLine.index ||
+            this.relationships[relationship].line2.index === destroyedLine.index) { // Looks to see if the current relationship has a line that no longer exists
+            this.relationships.splice(relationship, 1); // Removes the line
         }
     }
 };
@@ -287,65 +287,65 @@ Floater.prototype.checkRelationships = function (self, destroyedLine) {
 /*
  *
  *  Creates segment endpoint positions, and also how many segments there are for a given relationship
- *  @param {Object} self The parent floater object
+ *  @param {Object} this The parent floater object
  *  @param {Number} relationship Which relationship whose segments you want to update
- *  @param {Number} [segments=self.relationships[index].segments] The number of segments you want to update the relationship to have
+ *  @param {Number} [segments=this.relationships[index].segments] The number of segments you want to update the relationship to have
  */
 
-Floater.prototype.createSegments = function (self, relationship, segments) {
-    var newSegments = segments || self.segments;
+Floater.prototype.createSegments = function (relationship, segments) {
+    var newSegments = segments || this.segments;
 
-    for (var line in self.relationships[relationship]) { // allows us to access each line's key using bracket notation
-        if (self.relationships[relationship][line].connectorPoints.length === 0) {
-            for (var segment = 0; segment <= self.segments; segment++) {
-                var connector = new self.ConnectorPoint({
+    for (var line in this.relationships[relationship]) { // allows us to access each line's key using bracket notation
+        if (this.relationships[relationship][line].connectorPoints.length === 0) {
+            for (var segment = 0; segment <= this.segments; segment++) {
+                var connector = new Floater.ConnectorPoint({
                     x: null,
                     y: null,
                     z: null
                 });
-                self.relationships[relationship][line].connectorPoints.push(connector);
+                this.relationships[relationship][line].connectorPoints.push(connector);
             }
         }
     }
-    self.updateSegments(self);
-    return self.segments;
+    this.updateSegments();
+    return this.segments;
 };
 
 /*
  *  Updates the positions of segments
- *  @param {Object} self The parent floater object
+ *  @param {Object} this The parent floater object
  */
 
-Floater.prototype.updateSegments = function (self) {
-    for (var relationship = 0; relationship < self.relationships.length; relationship++) {
-        for (var iLine in self.relationships[relationship]) {
-            var line = self.relationships[relationship][iLine];
+Floater.prototype.updateSegments = function () {
+    for (var relationship = 0; relationship < this.relationships.length; relationship++) {
+        for (var iLine in this.relationships[relationship]) {
+            var line = this.relationships[relationship][iLine];
             var anchor1 = line.anchor1;
             var anchor2 = line.anchor2;
-            for (var segment = 0; segment < self.segments; segment++) {
-                for (var iDimension = 0; iDimension < self.dimensions; iDimension++) {
-                    var dimension = self.dimensionNames[iDimension];
+            for (var segment = 0; segment < this.segments; segment++) {
+                for (var iDimension = 0; iDimension < this.dimensions; iDimension++) {
+                    var dimension = this.dimensionNames[iDimension];
                     var anchor1D = anchor1.vector[dimension] + anchor1.jitter[dimension];
                     var anchor2D = anchor2.vector[dimension] + anchor2.jitter[dimension];
-                    var dimensionValue = ((anchor2D - anchor1D) / self.segments) * segment + anchor1D;
+                    var dimensionValue = ((anchor2D - anchor1D) / this.segments) * segment + anchor1D;
                     line.connectorPoints[segment][dimension] = dimensionValue;
                 }
             }
         }
     }
-    return self.segments;
+    return this.segments;
 };
 
 /*
  *  Updates the jitter property of each anchor with sound data.
- *  @param {Object} self The parent floater object
+ *  @param {Object} this The parent floater object
  */
 
-Floater.prototype.microphoneJitter = function (self) {
-    for (var anchor = 0; anchor < self.anchors.length; anchor++) {
-        self.anchors[anchor].jitter.x = Math.pow(sound.dataArray[0], 3) / 50000;
-        self.anchors[anchor].jitter.y = Math.pow(sound.dataArray[7], 3) / 50000;
-        self.anchors[anchor].jitter.z = Math.pow(sound.dataArray[15], 3) / 50000;
+Floater.prototype.microphoneJitter = function () {
+    for (var anchor = 0; anchor < this.anchors.length; anchor++) {
+        this.anchors[anchor].jitter.x = Math.pow(sound.dataArray[0], 3) / 50000;
+        this.anchors[anchor].jitter.y = Math.pow(sound.dataArray[7], 3) / 50000;
+        this.anchors[anchor].jitter.z = Math.pow(sound.dataArray[15], 3) / 50000;
     }
 }
 
@@ -353,11 +353,11 @@ Floater.prototype.microphoneJitter = function (self) {
  *  Reports on the current status of the floater
  */
 
-Floater.prototype.report = function (self) {
+Floater.prototype.report = function () {
     console.log('Anchors: ');
-    console.log(self.anchors);
+    console.log(this.anchors);
     console.log('Lines: ');
-    console.log(self.lines);
+    console.log(this.lines);
     console.log("Relationships: ");
-    console.log(self.relationships);
+    console.log(this.relationships);
 };

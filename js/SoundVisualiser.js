@@ -25,7 +25,7 @@ var SoundVisualiser = function (config) {
     }
 };
 
-SoundVisualiser.prototype.setupMicrophone = function (self) {
+SoundVisualiser.prototype.setupMicrophone = function () {
     navigator.getUserMedia = (navigator.getUserMedia ||
         navigator.webkitGetUserMedia ||
         navigator.mozGetUserMedia ||
@@ -34,18 +34,18 @@ SoundVisualiser.prototype.setupMicrophone = function (self) {
     navigator.webkitGetUserMedia({
             audio: true
         },
-        self.gotStream.bind(self),
-        self.lostStream);
+        this.gotStream.bind(this),
+        this.lostStream);
 };
 
-SoundVisualiser.prototype.setupAnalyser = function (self, config) {
-    self.analyser = self.context.createAnalyser();
-    self.analyser.fftSize = config.fftSize || 32;
-    self.analyser.smoothingTimeConstant = config.smoothingTimeConstant || 0.95;
-    self.analyser.minDecibels = config.minDecibels || -70;
-    self.analyser.maxDecibels = config.maxDecibels || -10;
-    self.bufferLength = self.analyser.frequencyBinCount;
-    self.dataArray = new Uint8Array(self.bufferLength);
+SoundVisualiser.prototype.setupAnalyser = function (config) {
+    this.analyser = this.context.createAnalyser();
+    this.analyser.fftSize = config.fftSize || 32;
+    this.analyser.smoothingTimeConstant = config.smoothingTimeConstant || 0.95;
+    this.analyser.minDecibels = config.minDecibels || -70;
+    this.analyser.maxDecibels = config.maxDecibels || -10;
+    this.bufferLength = this.analyser.frequencyBinCount;
+    this.dataArray = new Uint8Array(this.bufferLength);
 };
 
 SoundVisualiser.prototype.gotStream = function (stream) {
@@ -57,7 +57,7 @@ SoundVisualiser.prototype.lostStream = function (e) {
     console.log(e);
 };
 
-SoundVisualiser.prototype.getData = function (self) {
-    self.analyser.getByteFrequencyData(self.dataArray);
-    return self.dataArray;
+SoundVisualiser.prototype.getData = function () {
+    this.analyser.getByteFrequencyData(this.dataArray);
+    return this.dataArray;
 }

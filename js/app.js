@@ -90,7 +90,7 @@ function render() {
 
 function animate() {
     window.requestAnimationFrame(animate);
-    floater.microphoneJitter(floater, sound.getData(sound));
+    floater.microphoneJitter(floater, sound.getData());
     floater.animateAnchors(floater);
     threeObject.updateLines(threeObject);
     threeObject.updateConnectors(threeObject);
