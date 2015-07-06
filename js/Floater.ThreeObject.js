@@ -5,7 +5,6 @@ Floater.ThreeObject = function (floaterGeometry) {
     this.lines = new THREE.Object3D();
     this.relationships = new THREE.Object3D();
 
-
     this.lineMaterial = new THREE.LineBasicMaterial({
         color: 0x0080ff
     });
@@ -19,21 +18,37 @@ Floater.ThreeObject = function (floaterGeometry) {
 };
 
 Floater.ThreeObject.prototype.createAnchors = function (self) {
-    for (var i = 0; i < self.floaterGeometry.anchors.length; i++) {
+    for (var i = self.anchors.length; i < self.floaterGeometry.anchors.length; i++) {
         var anchor = new THREE.Vector3(0, 0, 0);
         self.anchors.push(anchor);
     }
 }
 
-Floater.ThreeObject.prototype.updateAnchors = function (self) {
-    for (var i = 0; i < self.anchors.length; i++) {
+Floater.ThreeObject.prototype.destroyAnchor = function (self, index) {
+    index = index || self.anchors.length - 1;
+    var destroyedAnchor = self.anchors.splice(index, 1);
+    self.checkLines(self, index);
+    return destroyedAnchor;
+}
+
+Floater.ThreeObject.prototype.checkAnchors = function (self) {
+    while (self.anchors.length !== self.floaterGeometry.anchors.length) {
+        if (self.anchors.length > self.floaterGeometry.anchors.length) {
+            self.destroyAnchor(self);
+        } else if (self.anchors.length < self.floaterGeometry.anchors.length) {
+            self.createAnchors(self);
+        }
+    }
+}
+
+Floater.ThreeObject.prototype.updateAnchorPositions = function (self) {
+    for (var i = 0; i < self.floaterGeometry.anchors.length; i++) {
         for (var iDimension = 0; iDimension < 3; iDimension++) {
             var dimension = ['x', 'y', 'z'][iDimension];
             var dimensionValue = self.floaterGeometry.anchors[i].vector[dimension] + self.floaterGeometry.anchors[i].jitter[dimension];
             self.anchors[i][dimension] = dimensionValue;
         }
     }
-    // TODO: Make sure vertices get updated
 }
 
 Floater.ThreeObject.prototype.createLines = function (self) {
@@ -48,11 +63,24 @@ Floater.ThreeObject.prototype.createLines = function (self) {
         var lineMesh = new THREE.Line(lineGeometry, self.lineMaterial);
         self.lines.add(lineMesh);
     }
-        self.updateLines(self);
+    self.updateLines(self);
+}
+
+Floater.ThreeObject.prototype.destroyLine = function (self, index) {
+    index = index || self.lines.children.length;
+    var destroyed = self.lines.children.splice(index,1);
+}
+
+Floater.ThreeObject.prototype.checkLines = function (self, index) {
+    for (var line = 0; line < self.floaterGeometry.lines.length; line++) {
+        if (self.floaterGeometry.lines[line].anchor1.index === index) {
+            self.destroyLine(self, line);
+        }
+    }
 }
 
 Floater.ThreeObject.prototype.updateLines = function (self) {
-    for (var line = 0; line < self.floaterGeometry.lines.length; line++) { // Iterate through all lines
+    for (var line = 0; line < self.lines.children.length; line++) { // Iterate through all lines
         self.lines.children[line].geometry.verticesNeedUpdate = true;
     }
 }
@@ -61,7 +89,7 @@ Floater.ThreeObject.prototype.createConnectors = function (self) {
     for (var relationship = 0; relationship < self.floaterGeometry.relationships.length; relationship++) {
         // Create vectors for each segment point
         var segments = new THREE.Object3D();
-        for (var connectorPoint = 0; connectorPoint < self.floaterGeometry.relationships[relationship].line1.connectorPoints.length; connectorPoint++) {
+        for (var connectorPoint = 0; connectorPoint < self.floaterGeometry.segments; connectorPoint++) {
             var connector1 = new THREE.Vector3(0, 0, 0);
             var connector2 = new THREE.Vector3(0, 0, 0);
 
@@ -80,6 +108,15 @@ Floater.ThreeObject.prototype.createConnectors = function (self) {
     }
     self.updateConnectors(self);
 }
+
+Floater.ThreeObject.prototype.destroyConnectors = function (self) {
+    for (var relationship = self.floaterGeometry.relationships.length; relationship < self.relationships.children.length; relationship++) {
+        var popped = self.relationships.children.pop();
+        console.log(popped);
+    }
+}
+
+
 
 Floater.ThreeObject.prototype.updateConnectors = function (self) {
     for (relationship = 0; relationship < self.floaterGeometry.relationships.length; relationship++) {

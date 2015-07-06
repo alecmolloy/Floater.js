@@ -49,6 +49,8 @@ function Floater(config) {
         this.createAnchor(this);
     }
 
+    this.speed = config.speed || 1;
+
     // Line
     this.lines = [];
     for (var lineBetween = 0; lineBetween < config.linesBetween.length; lineBetween++) {
@@ -173,7 +175,7 @@ Floater.prototype.createAnchor = function (self) {
     for (var iDimension = 0; iDimension < self.dimensions; iDimension++) {
         var dimension = self.dimensionNames[iDimension];
         vector[dimension] = Math.round(Math.random() * (self.field[dimension]) - self.field[dimension] / 2);
-        eVector[dimension] = (Math.random() * 2) - 1;
+        eVector[dimension] = ((Math.random()) - .5) * self.speed;
     }
 
     // Create Anchor object from vector and euclidean ector
@@ -191,7 +193,8 @@ Floater.prototype.createAnchor = function (self) {
 
 Floater.prototype.destroyAnchor = function (self, index) {
     index = index || (self.anchors.length - 1); // Defaults to last anchor in array
-    var destroyedAnchor = self.anchors.splice(index, 1); // Remove the anchor from the array
+    var destroyedAnchor = self.anchors.splice(index, 1)[0]; // Remove the anchor from the array
+    console.log('destroyed anchor: ' + destroyedAnchor.index);
     self.checkLines(self, destroyedAnchor); // Check to see if there are lines affected by this removal
 
     return destroyedAnchor;
@@ -208,7 +211,7 @@ Floater.prototype.checkAnchors = function (self, newAnchors) {
         if (newAnchors < self.anchors.length) {
             self.destroyAnchor(self);
         } else if (newAnchors > self.anchors.length) {
-            self.createAnchor(floater);
+            self.createAnchor(self);
         }
     }
 };
@@ -233,7 +236,7 @@ Floater.prototype.createLine = function (self, anchor1, anchor2) {
 
 Floater.prototype.destroyLine = function (self, index) {
     index = index || (self.lines.length - 1); // Defaults to last anchor in array
-    var destroyedLine = self.lines.splice(index, 1); // Remove the anchor from the array
+    var destroyedLine = self.lines.splice(index, 1)[0]; // Remove the anchor from the array
     self.checkRelationships(self, destroyedLine); // Check to see if there are lines affected by this removal
 
     return destroyedLine;
@@ -246,11 +249,14 @@ Floater.prototype.destroyLine = function (self, index) {
  */
 
 Floater.prototype.checkLines = function (self, destroyedAnchor) {
+    console.log('checking lines for anchor ' + destroyedAnchor.index);
     for (var i = 0; i < self.lines.length; i++) {
         if (self.lines[i].anchor1.index === destroyedAnchor.index ||
             self.lines[i].anchor2.index === destroyedAnchor.index) { // Looks to see if the current line has an anchor point that no longer exists
-            var destroyedLine = self.lines.splice(i, 1); // Removes the line and stores it in a variable
-            Floater.checkRelationships(self, destroyedLine); // Check to see if there are relationships affected by this removal
+            console.log('found anchor ' + destroyedAnchor.index + ' in line ' + i);
+            var destroyedLine = self.lines.splice(i, 1)[0]; // Removes the line and stores it in a variable
+            console.log('destroyed line ' + i);
+            self.checkRelationships(self, destroyedLine); // Check to see if there are relationships affected by this removal
         }
     }
 };
@@ -292,10 +298,13 @@ Floater.prototype.destroyRelationship = function (self, index) {
  */
 
 Floater.prototype.checkRelationships = function (self, destroyedLine) {
-    for (var relationship = 0; i < self.relationships.length; i++) {
+    console.log('checking relationships for line ' + destroyedLine.index);
+    for (var relationship = 0; relationship < self.relationships.length; relationship++) {
         if (self.relationships[relationship].line1.index === destroyedLine.index ||
             self.relationships[relationship].line2.index === destroyedLine.index) { // Looks to see if the current relationship has a line that no longer exists
+            console.log('found line ' + destroyedLine.index + ' in relationship ' + relationship);
             self.relationships.splice(relationship, 1); // Removes the line
+            console.log('destroyed relationship ' + relationship);
         }
     }
 };
@@ -359,9 +368,9 @@ Floater.prototype.updateSegments = function (self) {
 
 Floater.prototype.microphoneJitter = function (self) {
     for (var anchor = 0; anchor < self.anchors.length; anchor++) {
-        self.anchors[anchor].jitter.x = Math.pow(sound.dataArray[0], 3) / 50000;
-        self.anchors[anchor].jitter.y = Math.pow(sound.dataArray[7], 3) / 50000;
-        self.anchors[anchor].jitter.z = Math.pow(sound.dataArray[15], 3) / 50000;
+        self.anchors[anchor].jitter.x = sound.dataArray[0];
+        self.anchors[anchor].jitter.y = 0;
+        self.anchors[anchor].jitter.z = 0;
     }
 }
 
