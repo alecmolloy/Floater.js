@@ -6,7 +6,8 @@ Floater.ThreeObject = function (floaterGeometry) {
     this.relationships = new THREE.Object3D();
 
     this.lineMaterial = new THREE.LineBasicMaterial({
-        color: 0x0080ff
+        //        color: 0x0080ff
+        color: 0xffffff
     });
 
     this.createAnchors();
@@ -17,6 +18,15 @@ Floater.ThreeObject = function (floaterGeometry) {
     scene.add(this.floaterObj);
 };
 
+Floater.ThreeObject.prototype.auditFloater = function () {
+    var anchors = this.auditAnchors();
+    var lines = this.auditLines(anchors);
+    var connectors = this.auditConnectors(lines);
+    console.log(anchors);
+    console.log(lines);
+    console.log(connectors);
+}
+
 Floater.ThreeObject.prototype.createAnchors = function () {
     for (var i = this.anchors.length; i < this.floaterGeometry.anchors.length; i++) {
         var anchor = new THREE.Vector3(0, 0, 0);
@@ -25,17 +35,26 @@ Floater.ThreeObject.prototype.createAnchors = function () {
 }
 
 Floater.ThreeObject.prototype.destroyAnchor = function (index) {
-    index = index || this.anchors.length - 1;
-    var destroyedAnchor = this.anchors.splice(index, 1)[0];
-    this.checkLines(index);
-    return destroyedAnchor;
+    index = index || [this.anchors.length - 1];
+    console.log('%cDestroying anchor ' + index, 'color: rebeccapurple');
+    for (var i = 0; i < index.length; i++) {
+        var destroyedAnchor = this.anchors.splice(index, 1)[0];
+    }
 }
 
-Floater.ThreeObject.prototype.checkAnchors = function () {
-    while (this.anchors.length !== this.floaterGeometry.anchors.length) {
-        if (this.anchors.length > this.floaterGeometry.anchors.length) {
-            this.destroyAnchor();
-        } else if (this.anchors.length < this.floaterGeometry.anchors.length) {
+Floater.ThreeObject.prototype.auditAnchors = function () {
+    if (this.anchors.length > this.floaterGeometry.anchors.length) {
+        var anchors = [];
+        console.log('%cThere are too many anchors', 'color: rebeccapurple');
+        for (var i = 0; i < (this.anchors.length - this.floaterGeometry.anchors.length); i++) {
+            anchors.push(this.anchors.length - i);
+        }
+        return anchors;
+    }
+    if (this.anchors.length < this.floaterGeometry.anchors.length) {
+        while (this.anchors.length !== this.floaterGeometry.anchors.length) {
+            console.log('%cChecking for anchors', 'color: rebeccapurple');
+            console.log('%cThere are too few anchors', 'color: rebeccapurple');
             this.createAnchors();
         }
     }
@@ -67,17 +86,27 @@ Floater.ThreeObject.prototype.createLines = function () {
 }
 
 Floater.ThreeObject.prototype.destroyLine = function (index) {
-    index = index || this.lines.children.length;
-    var destroyed = this.lines.children.splice(index,1);
-    this.checkConnectors(index);
+    index = index || [this.anchors.length - 1];
+    console.log('%cDestroying line ' + index, 'color: rebeccapurple');
+    for (var i = 0; i < index.length; i++) {
+        var destroyedLine = this.lines.splice(index, 1)[0];
+    }
 }
 
-Floater.ThreeObject.prototype.checkLines = function (index) {
+Floater.ThreeObject.prototype.auditLines = function (anchors) {
+    console.log(anchors);
+    console.log('%cChecking lines for anchors ' + anchors, 'color: rebeccapurple');
+    var lines = [];
     for (var line = 0; line < this.floaterGeometry.lines.length; line++) {
-        if (this.floaterGeometry.lines[line].anchor1.index === index) {
-            this.destroyLine(line);
+        for (var index = 0; index < anchors.length; index++) {
+            if (this.floaterGeometry.lines[line].anchor1.index === anchors[index] ||
+                this.floaterGeometry.lines[line].anchor2.index === anchors[index]) {
+                console.log('%cFound anchor ' + index + ' in line ' + line + ', destroying', 'color: rebeccapurple');
+                lines.push(line);
+            }
         }
     }
+    return lines;
 }
 
 Floater.ThreeObject.prototype.updateLines = function () {
@@ -111,18 +140,22 @@ Floater.ThreeObject.prototype.createConnectors = function () {
 }
 
 Floater.ThreeObject.prototype.destroyConnectors = function () {
-    for (var relationship = this.floaterGeometry.relationships.length; relationship < this.relationships.children.length; relationship++) {
-        var popped = this.relationships.children.pop()[0];
+    index = index || [this.connectors.length - 1];
+    console.log('%cDestroying connector ' + index, 'color: rebeccapurple');
+    for (var i = 0; i < index.length; i++) {
+        var destroyedConnectors = this.connectors.splice(index, 1)[0];
     }
 }
 
-Floater.ThreeObject.prototype.checkConnectors = function (index) {
-    for (var relationship = this.floaterGeometry.relationships.length; relationship < this.relationships.children.length; relationship++) {
-        console.log(this.floaterGeometry.relationships[i]);
+Floater.ThreeObject.prototype.auditConnectors = function (lines) {
+    var connectors = [];
+    console.log('%cChecking connectors for lines ' + lines, 'color: rebeccapurple');
+    for (var connector = this.floaterGeometry.relationships.length; connector < this.relationships.children.length; connector++) {
+        for (var line = 0; line < lines.length; line++) {
+            connectors.push(relationship);
+        }
     }
 }
-
-
 
 Floater.ThreeObject.prototype.updateConnectors = function () {
     for (relationship = 0; relationship < this.floaterGeometry.relationships.length; relationship++) {

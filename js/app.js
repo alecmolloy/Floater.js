@@ -14,25 +14,33 @@ var gui, params;
 function fillScene() {
     scene = new THREE.Scene();
 
-        floater = new Floater({
-            anchors: 3,
-            fieldHeight: canvasHeight,
-            fieldWidth: canvasWidth,
-            linesBetween: ['01', '12'],
-            segments: 10,
-            speed: .5,
-            relationshipsBetween: ['01']
-        });
-//    floater = new Floater({
-//        anchors: 8,
-//        dimensions: 3,
-//        fieldHeight: canvasHeight,
-//        fieldWidth: canvasWidth,
-//        linesBetween: ['01', '12', '23', '30', '45', '56', '67'],
-//        segments: 40,
-//        relationshipsBetween: ['01', '12', '23', '30', '45', '56', '46']
-//    });
-
+    //    floater = new Floater({
+    //        anchors: 3,
+    //        fieldHeight: canvasHeight,
+    //        fieldWidth: canvasWidth,
+    //        linesBetween: ['01', '12'],
+    //        segments: 10,
+    //        speed: .5,
+    //        relationshipsBetween: ['01']
+    //    });
+    //    floater = new Floater({
+    //        anchors: 8,
+    //        dimensions: 3,
+    //        fieldHeight: canvasHeight,
+    //        fieldWidth: canvasWidth,
+    //        linesBetween: ['01', '12', '23', '30', '45', '56', '67'],
+    //        segments: 40,
+    //        relationshipsBetween: ['01', '12', '23', '30', '45', '56', '46']
+    //    });
+    floater = new Floater({
+        anchors: 4,
+        dimensions: 3,
+        fieldHeight: canvasHeight,
+        fieldWidth: canvasWidth,
+        linesBetween: ['01', '23'],
+        segments: 40,
+        relationshipsBetween: ['01']
+    });
     threeObject = new Floater.ThreeObject(floater);
 
     // Lights
@@ -81,31 +89,22 @@ function setupStats() {
     // GUI
     params = {
         anchors: floater.anchors.length,
-        dimensions: floater.dimensions,
         segments: floater.segments,
     };
     var gui = new dat.GUI({
         height: 5 * 32 - 1
     });
     gui.add(params, 'anchors')
-        .min(2)
+        .min(1)
         .max(50)
         .step(1)
         .onFinishChange(function () {
-            floater.checkAnchors(floater, params.anchors);
-            threeObject.checkAnchors(threeObject);
+            console.log(floater);
+            var checkFloaterAnchors = floater.checkAnchors.bind(floater);
+            var auditThreeAnchors = threeObject.auditFloater.bind(threeObject);
+            checkFloaterAnchors(params.anchors);
+            auditThreeAnchors();
         }); // check if i need to remove or add anchors
-    gui.add(params, 'dimensions')
-        .min(2)
-        .max(3)
-        .step(1)
-        .onFinishChange(function () {
-            floater.dimensions = params.dimensions;
-            floater.dimensionNames = ['x', 'y'];
-            if (params.dimensions === 3) {
-                floater.dimensionNames.push('z');
-            }
-        }); // check if i need to change dimensions
     gui.add(params, 'segments')
         .min(0)
         .onFinishChange(function () {
